@@ -16,6 +16,10 @@ script.
     });
     $( '.js-floating-nav a' ).on( 'click', toggleFloatingMenu );
 
+    $('.inner').on('click', function() {
+      window.print();
+    })
+
     $("#remaining-profiles").on('show.bs.collapse', function() {
       $( '.js-profiles-collapse > i' )
         .removeClass( 'icon-chevron-down' )

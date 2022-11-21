@@ -47,7 +47,7 @@ section.col-md-3.card-wrapper.profile-card-wrapper.affix
 
     .contact-details.clearfix
       if resume.basics.computed_location
-        +profile_card_detail("icon-location", resume.basics.computed_location)
+        +profile_card_detail("icon-location", resume.basics.computed_location, null, 'My current location')
       if resume.basics.phone
         +profile_card_detail("icon-phone", resume.basics.phone, "telephone")
       if resume.basics.email
@@ -58,7 +58,12 @@ section.col-md-3.card-wrapper.profile-card-wrapper.affix
           a(href=resume.basics.website, target="_blank")= resume.basics.website
       if resume.basics.languages
         +profile_card_detail('icon-language', resume.basics.languages, null, 'Languages I speak')
-
+    hr
+    .download-btn 
+      button.btn.btn-default.inner()
+        //- span.icon()
+        //-   i.icon.fs-lg(class='icon-download')
+        span.info() Print/Export this CV
     hr
 
     .social-links.text-center

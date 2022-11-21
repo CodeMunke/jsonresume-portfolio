@@ -29,15 +29,15 @@ module.exports = function(grunt) {
             }
         },
         exec: {
-            run_server: {
-                cmd: "node serve.js"
+            compile_pug: {
+                cmd: 'pug -c index.pug --out tpl && echo module.exports = { renderResume: template }; >> ./tpl/index.js'
             },
             build_index: {
                 cmd: "node render.js"
             },
-            compile_pug: {
-                cmd: 'pug -c index.pug --out tpl && echo "module.exports = { renderResume: template };" >> ./tpl/index.js'
-            }
+            run_server: {
+                cmd: "node serve.js"
+            },
         },
         copy: {
             resumejson: {
@@ -87,10 +87,11 @@ module.exports = function(grunt) {
         /* Uncomment this item once you've created your own resume.json file
            in the project root.  This will use your own data to build your site.
          */
-        // 'copy:resumejson',
+        'copy:resumejson',
         'clean',
         'copy:build',
         'less',
+        'exec:compile_pug',
         'exec:build_index', //,
         /* Uncomment this item (and the comma above) if you add a favicon.ico
            in the project root. You'll also need to uncomment the <link...> tag

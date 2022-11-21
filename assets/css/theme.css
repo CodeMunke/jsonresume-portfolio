@@ -1,18 +1,19 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?z1lat9');
-  src:  url('fonts/icomoon.eot?z1lat9#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?z1lat9') format('truetype'),
-    url('fonts/icomoon.woff?z1lat9') format('woff'),
-    url('fonts/icomoon.svg?z1lat9#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?6llb9d');
+  src:  url('fonts/icomoon.eot?6llb9d#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?6llb9d') format('truetype'),
+    url('fonts/icomoon.woff?6llb9d') format('woff'),
+    url('fonts/icomoon.svg?6llb9d#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
+  font-display: block;
 }
 
 [class^="icon-"], [class*=" icon-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'icomoon' !important;
-  speak: none;
+  speak: never;
   font-style: normal;
   font-weight: normal;
   font-variant: normal;
@@ -24,6 +25,24 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-download:before {
+  content: "\e9c7";
+}
+.icon-instagram:before {
+  content: "\e905";
+}
+.icon-trophy:before {
+  content: "\e605";
+}
+.icon-office:before {
+  content: "\e606";
+}
+.icon-clock:before {
+  content: "\e60a";
+}
+.icon-reddit:before {
+  content: "\e609";
+}
 .icon-gitlab .path1:before {
   content: "\e906";
   color: rgb(252, 109, 38);
@@ -190,21 +209,6 @@
 }
 .icon-facebook:before {
   content: "\f230";
-}
-.icon-instagram:before {
-  content: "\e905";
-}
-.icon-trophy:before {
-  content: "\e605";
-}
-.icon-office:before {
-  content: "\e606";
-}
-.icon-clock:before {
-  content: "\e60a";
-}
-.icon-reddit:before {
-  content: "\e609";
 }
 .icon-profile:before {
   content: "\e600";
@@ -664,6 +668,17 @@ body {
 }
 .social-link:hover {
   text-decoration: none;
+}
+.download-btn {
+  position: relative;
+  vertical-align: middle;
+  text-align: center;
+}
+.download-btn .inner {
+  width: 100%;
+}
+.download-btn .icon {
+  color: red;
 }
 .link-github {
   color: #454545;
