@@ -58,12 +58,9 @@ section.col-md-3.card-wrapper.profile-card-wrapper.affix
           a(href=resume.basics.website, target="_blank")= resume.basics.website
       if resume.basics.languages
         +profile_card_detail('icon-language', resume.basics.languages, null, 'Languages I speak')
-    hr
     .download-btn 
-      button.btn.btn-default.inner()
-        //- span.icon()
-        //-   i.icon.fs-lg(class='icon-download')
-        span.info() Print/Export this CV
+      a.btn.btn-default.inner(href="pdf")
+        span.info() Export as PDF
     hr
 
     .social-links.text-center

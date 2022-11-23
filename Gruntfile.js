@@ -36,7 +36,7 @@ module.exports = function(grunt) {
                 cmd: "node render.js"
             },
             run_server: {
-                cmd: "node serve.js"
+                cmd: "node server.mjs"
             },
         },
         copy: {

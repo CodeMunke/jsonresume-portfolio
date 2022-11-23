@@ -10,9 +10,6 @@
     .profile-pic {
         display: inline-block;
         vertical-align: middle;
-        img {
-            border-radius: 0;
-        }
     }
 
     .name-and-profession {
@@ -25,6 +22,18 @@
         .detail {
             .make-xs-column(3);
             padding: 0;
+
+            .info {
+                font-size: 0.7em;
+            }
+        }
+    }
+
+    .background-details {
+        .detail {
+            .icon {
+                padding-top: 10px;
+            }
         }
     }
 
@@ -34,5 +43,10 @@
 
     .pagebreak {
         page-break-before: always;
+    }
+
+    .download-btn {
+        padding: 0;
+        visibility: collapse;
     }
 }
