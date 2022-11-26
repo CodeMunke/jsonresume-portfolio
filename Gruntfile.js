@@ -30,7 +30,7 @@ module.exports = function(grunt) {
         },
         exec: {
             compile_pug: {
-                cmd: 'pug -c index.pug --out tpl && echo module.exports = { renderResume: template }; >> ./tpl/index.js'
+                cmd: 'pug -c index.pug --out tpl && echo "module.exports = { renderResume: template };" >> ./tpl/index.js'
             },
             build_index: {
                 cmd: "node render.js"
