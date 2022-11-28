@@ -9,7 +9,7 @@ dotenv.config();
 const PORT = process.env.PORT;
 const addr = `http://localhost:${PORT}/`;
 const app = express();
-const resume = await (await fetch(process.env.JSONRESUME_LINK)).json();
+var resume = await (await fetch(process.env.JSONRESUME_URL)).json();
 
 function render(resume) {
   try {
@@ -30,21 +30,17 @@ const getPdf = async () => {
     format: "A4",
     landscape: false,
     displayHeaderFooter: true,
-    headerTemplate: `<div style="font-size:7px;white-space:nowrap;margin-left:38px;">
-                        <span style="margin-left: 10px;">Exported PDF | </span>
-                        ${new Date().toDateString()}
-                    </div>`,
+    headerTemplate: ``,
     footerTemplate: `<div style="font-size:7px;white-space:nowrap;margin-left:38px;width:100%;">
-                        Exported PDF
                         <span style="display:inline-block;float:right;margin-right:10px;">
                             <span class="pageNumber"></span> / <span class="totalPages"></span>
                         </span>
                     </div>`,
     margin: {
-      top: '38px',
-      right: '38px',
+      // top: '38px',
+      // right: '38px',
       bottom: '38px',
-      left: '38px'
+      // left: '38px'
     }
   });
 
@@ -64,6 +60,7 @@ app.get('/pdf', async (_, res) => {
 });
 
 app.get('/', async (req, res) => {
+  resume = await (await fetch(process.env.JSONRESUME_URL)).json();
   const picture = resume.basics.picture && resume.basics.picture.replace(/^\//, '');
 
   if (picture && req.url.replace(/^\//, '') === picture.replace(/^.\//, '')) {

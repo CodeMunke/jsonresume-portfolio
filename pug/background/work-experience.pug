@@ -41,3 +41,6 @@ unless _.isEmpty(resume.work)
                 ul
                   each highlight in experience.highlights
                     li.mop-wrapper!= highlight
+              if experience.url
+                br
+                a.company-link(href=experience.url) Company site: #{experience.url}

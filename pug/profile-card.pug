@@ -10,24 +10,27 @@ mixin profile_card_detail(icon, info, itemprop, icon_title)
 
 mixin render_links(profiles)
   each profile in profiles
-    a.fs-2x.social-link(
-      href=profile.url,
-      target="_blank",
-      data-toggle="tooltip",
-      title= resume.basics.name + " on " + profile.network,
-      class="link-" + profile.label + " icon-" + profile.label)
-      if profile.network.toLowerCase() == 'meetup'
-        span.path2
-        span.path3
-      if profile.network.toLowerCase() == 'gitlab'
-        span.path1
-        span.path2
-        span.path3
-        span.path4
-        span.path5
-        span.path6
-        span.path7
-        span.path8
+    div.social-block()
+      a.fs-2x.social-link(
+        href=profile.url,
+        target="_blank",
+        data-toggle="tooltip",
+        title= resume.basics.name + " on " + profile.network,
+        class="link-" + profile.label + " icon-" + profile.label)
+        if profile.network.toLowerCase() == 'meetup'
+          span.path2
+          span.path3
+        if profile.network.toLowerCase() == 'gitlab'
+          span.path1
+          span.path2
+          span.path3
+          span.path4
+          span.path5
+          span.path6
+          span.path7
+          span.path8
+      a.url(href=profile.url)= profile.url
+
 
 section.col-md-3.card-wrapper.profile-card-wrapper.affix
   .card.profile-card
@@ -58,6 +61,7 @@ section.col-md-3.card-wrapper.profile-card-wrapper.affix
           a(href=resume.basics.website, target="_blank")= resume.basics.website
       if resume.basics.languages
         +profile_card_detail('icon-language', resume.basics.languages, null, 'Languages I speak')
+    
     .download-btn 
       a.btn.btn-default.inner(href="pdf")
         span.info() Export as PDF

@@ -30,7 +30,7 @@ module.exports = function(grunt) {
         },
         exec: {
             compile_pug: {
-                cmd: 'pug -c index.pug --out tpl && echo "module.exports = { renderResume: template };" >> ./tpl/index.js'
+                cmd: 'pug -c index.pug --out tpl && echo module.exports = { renderResume: template }; >> ./tpl/index.js'
             },
             build_index: {
                 cmd: "node render.js"
@@ -92,7 +92,7 @@ module.exports = function(grunt) {
         'copy:build',
         'less',
         'exec:compile_pug',
-        'exec:build_index', //,
+        // 'exec:build_index', //,
         /* Uncomment this item (and the comma above) if you add a favicon.ico
            in the project root. You'll also need to uncomment the <link...> tag
            at the top of resume.template.

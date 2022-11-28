@@ -29,6 +29,32 @@
         }
     }
 
+    .social-links {
+        line-height: 2.5;
+        padding: 0;
+
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: column;
+        align-content: space-around;
+
+        .social-block {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .url {
+            display: inline-block;
+            visibility: visible;
+        }
+    }
+
+    .social-link {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
     .background-details {
         .detail {
             .icon {
@@ -36,6 +62,11 @@
             }
         }
     }
+
+    .company-link {
+        display: inline;
+        visibility: visible;
+      }
 
     .floating-nav, .floating-nav-trigger {
         display: none;
@@ -46,7 +77,10 @@
     }
 
     .download-btn {
+        width: 0;
+        height: 0;
         padding: 0;
         visibility: collapse;
+        display: none;
     }
 }

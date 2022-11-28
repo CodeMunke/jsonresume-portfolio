@@ -4,6 +4,5 @@ build/*
 *.DS_Store
 public/
 assets/css/*
-assets/icomoon/*
 tpl/
 .env
