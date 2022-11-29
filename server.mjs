@@ -50,7 +50,7 @@ const getPdf = async () => {
 
 app.get('/pdf', async (_, res) => {
   const pdf = await getPdf();
-  const pdfName = resume.basics.name + " CV.pdf";
+  const pdfName = (resume.basics.name + "_CV.pdf").replace(' ', '_');
   res.set({
     "Content-Type": "application/pdf",
     "Content-Length": pdf.length,
