@@ -21,10 +21,13 @@ function render(resume) {
     resume.basics.picture = utils.getUrlForPicture(resume);
     resume.basics.summary = convertMarkdown(resume.basics.summary);
     resume.basics.computed_location = _.compact(addressValues).join(', ');
-
-    if (resume.languages) {
-        resume.basics.languages = _.pluck(resume.languages, 'language').join(', ');
-    }
+    
+    const langs = [];
+    _(resume.languages).forEach(lang => {
+        const langFull = lang.language + " (" + lang.fluency + ")";
+        langs.push(langFull);
+    });
+    resume.basics.languages = langs.join(', ');
 
     _(resume.basics.profiles).forEach(p => {
         const label = p.network.toLowerCase();
