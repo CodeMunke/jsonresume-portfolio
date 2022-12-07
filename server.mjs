@@ -3,33 +3,47 @@ import { launch } from "puppeteer";
 import express from 'express';
 import theme from './index.js';
 
+import onepage from './assets/onepage/index.js'
+import RemoveMarkdown from 'remove-markdown';
+
 import dotenv from 'dotenv';
 dotenv.config();
 
-const PORT = process.env.PORT;
-const addr = `http://localhost:${PORT}/`;
+const port = process.env.port;
+const addr = `http://localhost:${port}/`;
 const app = express();
+const truncRegex = /⁠.+?⁠/gm;
+const resumeEndpoint = "resume";
+
 var resume = await (await fetch(process.env.JSONRESUME_URL)).json();
 
-function render(resume) {
+//Renders the requested resume
+function render(resume, isFull = true) {
   try {
-      return theme.render(JSON.parse(JSON.stringify(resume)));
+    if (isFull)
+      //Remove all word joiners
+      return theme.render(JSON.parse(JSON.stringify(resume).replaceAll('⁠', '')));
+    else {
+      //Remove: markdown formatting, everything marked with word joiners AND the '>' symbol
+      const shortResumeStr = RemoveMarkdown(JSON.stringify(resume)).replace(truncRegex, '').replaceAll('>', '');
+      return onepage.render(JSON.parse(shortResumeStr));
+    }
   } catch (e) {
       console.log(e.message);
       return '';
   }
 }
 
-const getPdf = async () => {
+const getPdf = async (isFull = true) => {
   const browser = await launch();
   const page = await browser.newPage();
-  await page.goto(addr, {
+  await page.goto(isFull ? addr : addr + resumeEndpoint, {
     waitUntil: "networkidle2"
   });
   const pdf = await page.pdf({    
     format: "A4",
     landscape: false,
-    displayHeaderFooter: true,
+    displayHeaderFooter: isFull,
     headerTemplate: ``,
     footerTemplate: `<div style="font-size:7px;white-space:nowrap;margin-left:38px;width:100%;">
                         <span style="display:inline-block;float:right;margin-right:10px;">
@@ -37,10 +51,10 @@ const getPdf = async () => {
                         </span>
                     </div>`,
     margin: {
-      // top: '38px',
-      // right: '38px',
-      bottom: '38px',
-      // left: '38px'
+      bottom: isFull ? '38px' : '0px',
+      top: '0px',
+      left: '0px',
+      right: '0px'
     }
   });
 
@@ -48,6 +62,7 @@ const getPdf = async () => {
   return pdf;
 };
 
+//Export full CV into PDF
 app.get('/pdf', async (_, res) => {
   const pdf = await getPdf();
   const pdfName = (resume.basics.name + "_CV.pdf").replace(' ', '_');
@@ -59,6 +74,28 @@ app.get('/pdf', async (_, res) => {
   res.send(pdf);
 });
 
+//Export resume into PDF
+app.get(`/${resumeEndpoint}Pdf`, async (_, res) => {
+  const pdf = await getPdf(false);
+  const pdfName = (resume.basics.name + "_resume.pdf").replace(' ', '_');
+  res.set({
+    "Content-Type": "application/pdf",
+    "Content-Length": pdf.length,
+    'Content-Disposition': 'attachment; filename=' + pdfName,
+  });
+  res.send(pdf);
+});
+
+//Render truncated one-page resume
+app.get(`/${resumeEndpoint}`, async (_, res) => {
+  resume = await (await fetch(process.env.JSONRESUME_URL)).json();
+  res.writeHead(200, {
+      'Content-Type': 'text/html'
+  });
+  res.end(render(resume, false));
+})
+
+//Render full CV
 app.get('/', async (req, res) => {
   resume = await (await fetch(process.env.JSONRESUME_URL)).json();
   const picture = resume.basics.picture && resume.basics.picture.replace(/^\//, '');
@@ -87,6 +124,7 @@ app.get('/', async (req, res) => {
   }
 })
 
-app.listen(PORT, () => {
-  console.log(`Serving resume at: ${addr}`);
+app.listen(port, () => {
+  console.log(`Serving CV at: ${addr}`);
+  console.log(`Serving resume at: ${addr}${resumeEndpoint}`);
 })

@@ -47,18 +47,25 @@ a {
 .sectionBlock {
   display: flex;
   width: 100%;
+  flex-direction: column;
 }
 
-.sectionName {
-  width: 18%;
+.sectionHeader {
   vertical-align: top;
+  text-align: left;
   display: inline-block;
+  font-weight: bold;
+  border-style: solid;
+  border-width: 0px 0px 2px 0px;
+  border-color: #9b9b9b;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .sectionContent {
-  width: 80%;
   vertical-align: top;
   display: inline-block;
+  text-align: justify;
 }
 
 .sectionContent ul {
@@ -77,14 +84,6 @@ a {
 
 .sectionContent .separator {
   height: 14px;
-}
-
-.sectionLine {
-  border-style: dashed;
-  border-width: 1px;
-  border-color: #CFCFCF;
-  margin-top: 10px;
-  margin-bottom: 10px;
 }
 
 .divider {
@@ -140,12 +139,12 @@ a {
 @media print {
   body {
     background: #FFFFFF;
+    margin: 20px 0;
   }
   #resume {
     margin: 0 auto;
-    max-width: 600px;
-    padding: 0px 0px;
-    border: 0px;
+    padding: 0;
+    border: 0;
     background: #fff;
     box-shadow: none;
     -webkit-box-shadow: none;
