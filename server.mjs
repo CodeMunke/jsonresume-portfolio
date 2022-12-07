@@ -9,7 +9,7 @@ import RemoveMarkdown from 'remove-markdown';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const port = process.env.port;
+const port = process.env.PORT;
 const addr = `http://localhost:${port}/`;
 const app = express();
 const truncRegex = /⁠.+?⁠/gm;
