@@ -49,7 +49,7 @@
         {{#each profiles}}
           {{#if url}}
             <span class='url'>
-              <a href='{{url}}'>{{network}}</a>
+              <a href='{{url}}'>{{url}}</a>
             </span>
             {{#unless @last}}<span class='divider'>|</span>{{/unless}}
           {{/if}}
@@ -91,7 +91,8 @@
 			<div class="jobBlock">
 	      <div class='blockHeader'>
 	        <span class='title'>
-            {{#if name}}<a href="{{url}}">{{name}}</a>{{/if}}{{#if position}} - {{position}}{{/if}}
+            {{#if name}}{{name}}{{/if}}{{#if url}}<a href="{{url}}"> ({{url}})</a>{{/if}}{{#if position}} - {{position}}{{/if}}
+            {{!-- {{#if name}}<a href="{{url}}">{{name}}</a>{{/if}}{{#if position}} - {{position}}{{/if}} --}}
 	        </span>
 	        {{#if startDate}}
 	        <span class='date'>
