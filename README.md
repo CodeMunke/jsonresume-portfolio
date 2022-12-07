@@ -51,6 +51,8 @@ PORT=3000
 JSONRESUME_URL="your_link_here"
 ```
 
+On the other hand, if you intend to run the server as a [systemd daemon](https://nodesource.com/blog/running-your-node-js-app-with-systemd-part-1/) you can instead copypaste the contents of the `.env` file into the [systemd environment file](https://flatcar-linux.org/docs/latest/setup/systemd/environment-variables/).
+
 ### **Build and run!**
 
 ```bash
@@ -65,6 +67,12 @@ grunt build
 
 #To serve only
 $ grunt exec:run_server
+...
+Serving CV at: http://localhost:{PORT}/
+Serving resume at: http://localhost:{PORT}/{resumeEndpoint}
+
+#Alternatively...
+$ node server.mjs
 ...
 Serving CV at: http://localhost:{PORT}/
 Serving resume at: http://localhost:{PORT}/{resumeEndpoint}
