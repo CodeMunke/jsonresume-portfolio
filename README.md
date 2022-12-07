@@ -1,85 +1,81 @@
-# Elegant Theme [![npm version](https://badge.fury.io/js/jsonresume-theme-elegant.svg)](http://badge.fury.io/js/jsonresume-theme-elegant)
+# Portfolio complex (CV + Resume)
 
-Responsive theme for [JsonResume](https://jsonresume.org/) inspired by card layouts. Now REMASTERED!
+A site-portfolio designed to streamline the resume and CV generation process based on two [JSONResume](https://jsonresume.org/) themes and a little bit of CSS/JS greasing.
 
-[Theme Preview](http://themes.jsonresume.org/theme/elegant)
+## Architecture
 
-### Markdown Supported
-Supported in the following properties `resume.basics.summary`, `work[0].summary`, `work[0].highlights`, `projects[0].summary`, `projects[0].highlights`, `education[0].courses`, `volunteer[0].summary`, `volunteer[0].highlights`, `awards[0].summary`, `publications[0].summary`, `references[0].reference`, `skills[0].keywords`. If you have any other use case, please raise an issue
+The site consists of three modules:
 
-### Social Profiles
-The profiles are shown in the order in which they are specified in the `basics.profiles` array. By default, only 5 profiles are shown & others are revealed on demand.
+1) **Main/CV module**: for portfolio serving and CV generation. It uses the [Elegant](https://github.com/mudassir0909/jsonresume-theme-elegant) JSONResume theme as base. Written using JS and LESS + Pug/Jade.
+2) **Resume module**: made for serving and generation of the **truncated one-page resume**. Based on the [OnePage](https://github.com/ainsleyc/jsonresume-theme-onepage) JSONResume theme. Extremely simplistic, written in JS + CSS + HBS placed in `assets/onepage/`;
+3) **Backend module**: made to serve and handle the above frontend modules. Made with NodeJS. Located entirely within `server.mjs`.
 
-![Profile Section](https://raw.githubusercontent.com/mudassir0909/jsonresume-theme-elegant/master/screenshots/profile.png)
+***The project uses `.env` environment variables, don't forget to define them!***
 
-#### Supported Profiles
-* angellist
-* behance
-* bitbucket
-* blogger
-* codepen
-* dribbble
-* dribble
-* exercism
-* facebook
-* flickr
-* foursquare
-* github
-* gitlab
-* googleplus
-* gratipay
-* hackernews
-* instagram
-* lastfm
-* linkedin
-* medium
-* meetup
-* pinterest
-* reddit
-* skype
-* soundcloud
-* spotify
-* stackexchange
-* stackoverflow
-* telegram
-* tumblr
-* twitter
-* vimeo
-* youtube
+## How to deploy
 
-### Credits
-* Thank you [contributors](https://github.com/mudassir0909/jsonresume-theme-elegant/graphs/contributors) for your pull requests
-* Floating Menu: inspired by [Smart Fixed Navigation](http://codyhouse.co/demo/smart-fixed-navigation/index.html)
+### **Define resume.json**
 
-### Contributing
-```
-$ npm install -g grunt
-$ npm install -g pug-cli
-$ git clone https://github.com/mudassir0909/jsonresume-theme-elegant.git
-$ cd jsonresume-theme-elegant
-$ npm install
-$ grunt watch // watches for file changes in *.pug & *.less
-$ grunt exec:run_server // Do this in a new terminal tab to run node server
+Make your own resume.json like specified in `resume_example.json` and either referece it in your file system or host it elsewhere (I, for example, host it on GitHub gists). There are key differences between the usual `resume.json` format and this one:
+
+* It has and uses `resume.basics.objective`, the objective of your job search;
+* Uses `resume.picture` instead of `resume.image`;
+* Since this project is based on the Elegant theme, [which supports Markdown rendering](https://github.com/mudassir0909/jsonresume-theme-elegant#markdown-supported) you can format your text in this way;
+* It uses `resume.work[i].url` instead of `resume.work[i].website`;
+* The server truncates everything in `resume.json` that is placed between the [word joiners](https://unicode-table.com/en/2060/) when it renders the resume. ***They won't be removed when rendering the full CV.*** Example:
+  >I'm rendering a truncated one-page resume for these HR people⁠;~~ but my resume.json is too large!⁠~~ Thankfully, the server removes the last bit between the word joiners.
+
+### **Prepare the project**
+
+```bash
+git clone https://github.com/CodeMunke/jsonresume-portfolio.git
+npm install -g grunt
+npm install -g pug-cli
+cd jsonresume-portfolio
+npm install
 ```
 
-Visit [http://localhost:8888](http://localhost:8888) to see the theme in action.
+Then, create the `.env` file:
 
-[![Throughput Graph](https://graphs.waffle.io/mudassir0909/jsonresume-theme-elegant/throughput.svg)](https://waffle.io/mudassir0909/jsonresume-theme-elegant/metrics)
+```bash
+touch .env
+```
 
-##### Testing JSON changes
-You can test your changes by updating `resume.json` file inside `node_modules/resume-schema/` folder. You might want to rerun `grunt exec:run_server` whenever you make any changes to `resume.json`
+And define 2 variables there:
 
-##### Updating Styles
-All the LESS files are organized under the folder `assets/less/`. Please go through the comments inside `theme.less` to find out which file to put your LESS changes. Grunt compiles `assets/less/theme.less` to `assets/css/theme.css` which is used eventually in the theme.
+```bash
+#Serving port.
+PORT=3000
 
-**_Please Do not make any changes inside `assets/css/theme.css`_**
+#URL to resume.json
+JSONRESUME_URL="your_link_here"
+```
 
-##### Updating Javascript
-All the javascript changes go into `index.js` which is responsible for rendering the theme.
+### **Build and run!**
 
-##### Adding a new icon
-Visit this [wiki page](https://github.com/mudassir0909/jsonresume-theme-elegant/wiki/Adding-a-new-icon)
+```bash
+#To build AND serve
+$ grunt serve
+...
+Serving CV at: http://localhost:{PORT}/
+Serving resume at: http://localhost:{PORT}/{resumeEndpoint}
 
-### Roadmap
+#To build only
+grunt build
 
-[https://github.com/mudassir0909/jsonresume-theme-elegant/labels/enhancement](https://github.com/mudassir0909/jsonresume-theme-elegant/labels/enhancement)
+#To serve only
+$ grunt exec:run_server
+...
+Serving CV at: http://localhost:{PORT}/
+Serving resume at: http://localhost:{PORT}/{resumeEndpoint}
+```
+
+**And now, for the fun stuff!**
+
+## Feature overview
+
+1) The key feature of this portfolio complex is that it has TWO buttons:
+   * *Download resume*
+   * *Download full CV*
+  
+Both of them export the CV and truncated resume into neat PDFs, yay! 😄
