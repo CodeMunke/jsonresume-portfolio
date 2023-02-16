@@ -63,7 +63,12 @@ module.exports = function(grunt) {
             build: {
                 src: [ 'build' ]
             }
-        }
+        },
+        pack: {
+            bundle: {
+                cmd: 'npx esbuild index.js  --bundle --outfile=build.cjs --format=cjs --platform=node'
+            }
+        },
     });
 
     // Load the plugin that compiles less to css
@@ -104,4 +109,7 @@ module.exports = function(grunt) {
         'exec:run_server'
     ]);
     grunt.registerTask('compile:pug', ['exec:compile_pug']);
+    grunt.registerTask('release', [
+        'pack'
+    ]);
 }

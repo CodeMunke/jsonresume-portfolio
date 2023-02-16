@@ -24,6 +24,7 @@
   "homepage": "https://github.com/mudassir0909/jsonresume-theme-elegant",
   "dependencies": {
     "dotenv": "^16.0.3",
+    "esbuild": "^0.17.8",
     "express": "^4.18.2",
     "gravatar": "^1.0.6",
     "handlebars": ">=4.0.14",
@@ -35,6 +36,7 @@
     "markdown-it-abbr": "^1.0.3",
     "moment": "^2.22.2",
     "node-fetch": "^3.3.0",
+    "pkg": "^5.8.0",
     "pug": "^2.0.4",
     "puppeteer": "^19.2.2",
     "remove-markdown": "^0.5.0",
