@@ -1,6 +1,8 @@
-node_modules
+node_modules/*
 resume.json
 build/*
+build
+build.cjs
 *.DS_Store
 public/
 assets/css/*
