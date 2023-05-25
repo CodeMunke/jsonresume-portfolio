@@ -6,6 +6,10 @@ WORKDIR /usr/src/app
 # you'll need to launch puppeteer with:
 #     browser.launch({executablePath: 'google-chrome-stable'})
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+ARG username
+ARG passwd
+
+RUN apt-get update && apt-get install -y openssh-server sudo
 
 # Install latest chrome dev package and fonts to support major charsets (Chinese, Japanese, Arabic, Hebrew, Thai and a few others)
 # Note: this installs the necessary libs to make the bundled version of Chromium that Puppeteer
@@ -16,6 +20,17 @@ RUN apt-get update && apt-get install gnupg wget -y && \
   apt-get update && \
   apt-get install google-chrome-stable -y --no-install-recommends && \
   rm -rf /var/lib/apt/lists/*
+
+RUN useradd $username
+RUN echo "$username:$passwd" | chpasswd
+RUN usermod -aG sudo $username
+
+RUN mkdir /var/run/sshd
+COPY assets/docker/sshd_config /etc/ssh/
+COPY assets/docker/init.sh /usr/local/bin/
+
+# RUN service ssh start
+EXPOSE 2222 3000
 
 COPY package*.json ./
 COPY server.mjs ./
@@ -29,4 +44,4 @@ COPY assets/onepage/style.css ./assets/onepage/style.css
 
 RUN npm ci --omit=dev
 
-CMD [ "node", "server.mjs" ]
+CMD ["bash","init.sh"]
