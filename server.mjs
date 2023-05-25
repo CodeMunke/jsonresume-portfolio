@@ -1,12 +1,13 @@
 import fetch from 'node-fetch';
-import { launch } from "puppeteer";
 import express from 'express';
+import { launch } from 'puppeteer';
 import theme from './index.js';
 
 import onepage from './assets/onepage/index.js'
 import RemoveMarkdown from 'remove-markdown';
 
 import dotenv from 'dotenv';
+import locateChrome from 'locate-chrome';
 dotenv.config();
 
 const port = process.env.PORT;
@@ -16,6 +17,8 @@ const truncRegex = /⁠.+?⁠/gm;
 const resumeEndpoint = "resume";
 
 var resume = await (await fetch(process.env.JSONRESUME_URL)).json();
+
+const executablePath = await new Promise(resolve => locateChrome((arg) => resolve(arg))) || '';
 
 //Renders the requested resume
 function render(resume, isFull = true) {
@@ -35,7 +38,10 @@ function render(resume, isFull = true) {
 }
 
 const getPdf = async (isFull = true) => {
-  const browser = await launch();
+  const browser = await launch({
+    executablePath,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  });
   const page = await browser.newPage();
   await page.goto(isFull ? addr : addr + resumeEndpoint, {
     waitUntil: "networkidle2"

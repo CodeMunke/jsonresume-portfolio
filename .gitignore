@@ -1,10 +1,9 @@
-node_modules/*
+.env
+.vscode
+
+node_modules
+
 resume.json
-build/*
 build
 build.cjs
-*.DS_Store
-public/
-assets/css/*
 tpl/
-.env
