@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+  nodejs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - username=fff
+        - passwd=fff
+    image: nodejs
+    container_name: nodejs
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    networks:
+      - app-network
+    expose:
+      - 3000
+      - 22
+  webserver:
+    image: nginx:mainline-alpine
+    container_name: webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "22:22"
+    volumes:
+      - web-root:/var/www/html
+      - ./nginx-conf:/etc/nginx/conf.d
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+    depends_on:
+      - nodejs
+    networks:
+      - app-network
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - web-root:/var/www/html
+    depends_on:
+      - webserver
+    command: certonly --webroot --webroot-path=/var/www/html --email email --agree-tos --no-eff-email --staging -d sda.ddns.net -d www.sda.ddns.net
+
+volumes:
+  certbot-etc:
+  certbot-var:
+  web-root:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/docker/jsonresume-portfolio/views/
+      o: bind
+
+networks:
+  app-network:
+    driver: bridge
