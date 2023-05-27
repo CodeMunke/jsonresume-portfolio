@@ -5,23 +5,23 @@ module.exports = function(grunt) {
         less: {
           development: {
             options: {
-              paths: ["assets"]
+              paths: ["themes/elegant/assets"]
             },
             files: {
-              "assets/css/theme.css": "assets/less/theme.less"
+              "themes/elegant/style.css": "themes/elegant/assets/less/theme.less"
             }
           }
         },
         watch: {
             styles: {
-                files: ['assets/less/**/*.less'],
+                files: ['themes/elegant/assets/less/**/*.less'],
                 tasks: ['less'],
                 options: {
                     nospawn: true
                 }
             },
             pug: {
-                files: ['index.pug'],
+                files: ['themes/elegant/index.pug'],
                 tasks: ['exec:compile_pug'],
                 options: {
                     nospawn: true
@@ -30,13 +30,10 @@ module.exports = function(grunt) {
         },
         exec: {
             compile_pug: {
-                cmd: 'pug -c index.pug --out tpl && echo module.exports = { renderResume: template }; >> ./tpl/index.js'
-            },
-            build_index: {
-                cmd: "node render.js"
+                cmd: 'pug -c ./themes/elegant/index.pug --out ./themes/elegant/tpl && echo module.exports = { renderResume: template }; >> ./themes/elegant/tpl/index.js'
             },
             run_server: {
-                cmd: "node server.mjs"
+                cmd: "node themes/server.mjs"
             },
             generate_keys: {
                 cmd: function(passphrase) {
@@ -46,7 +43,7 @@ module.exports = function(grunt) {
                     grunt.log.writeln("Generating SSH keys...")
                     process.env['SSH_ASKPASS'] = passphrase
                     process.env['DISPLAY'] = 1
-                    const sshPath = __dirname + "\\build\\assets\\ssh"
+                    const sshPath = __dirname + "\\build\\ssh"
 
                     //If the ssh folder doesn't exist, make one
                     if (!fs.existsSync(sshPath)){
@@ -91,16 +88,42 @@ module.exports = function(grunt) {
                 dest: './node_modules/resume-schema',
                 expand: true
             },
-            build: {
-                cwd: './assets/css',
-                src: [ 'theme.css' ],
-                dest: './build/assets/css',
+            build_less: {
+                cwd: './themes/elegant',
+                src: 
+                [ 
+                    'style.css'
+                ],
+                dest: './build/web/elegant',
+                expand: true
+            },
+            build_main: {
+                cwd: './themes',
+                src: 
+                [ 
+                    'elegant/moment-precise-range.js',
+                    'elegant/index.js',
+                    'elegant/tpl/index.js',
+                    'server.mjs'
+                ],
+                dest: './build/web',
+                expand: true
+            },
+            build_onepage: {
+                cwd: './themes/onepage',
+                src: 
+                [ 
+                    'resume.hbs',
+                    'style.css',
+                    'index.js'
+                ],
+                dest: './build/web/onepage',
                 expand: true
             },
             favicon: {
                 cwd: './',
                 src: [ 'favicon.ico' ],
-                dest: './build/',
+                dest: './build/web',
                 expand: true
             }
         },
@@ -129,20 +152,17 @@ module.exports = function(grunt) {
     // Default tasks
     grunt.registerTask('default', ['exec']);
     grunt.registerTask('build', [
-        /* Uncomment this item once you've created your own resume.json file
-           in the project root.  This will use your own data to build your site.
-         */
-        'copy:resumejson',
         'clean',
-        'copy:build',
         'less',
         'exec:compile_pug',
-        // 'exec:build_index', //,
+        'copy:build_main',
+        'copy:build_less',
+        'copy:build_onepage',
         /* Uncomment this item (and the comma above) if you add a favicon.ico
            in the project root. You'll also need to uncomment the <link...> tag
            at the top of resume.template.
          */
-        // 'copy:favicon'
+        'copy:favicon'
     ]);
     grunt.registerTask('serve', [
         'build',

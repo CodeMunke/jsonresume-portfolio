@@ -16,7 +16,7 @@ utils.setConfig({ date_format: 'MMM, YYYY' });
 function render(resume) {
     const addressAttrs = ['address', 'city', 'region', 'countryCode', 'postalCode'];
     const addressValues = addressAttrs.map(key => resume.basics.location[key]);
-    const css = fs.readFileSync(__dirname + '/assets/css/theme.css', 'utf-8');
+    const css = fs.readFileSync(__dirname + '/style.css', 'utf-8');
 
     resume.basics.picture = utils.getUrlForPicture(resume);
     resume.basics.summary = convertMarkdown(resume.basics.summary);

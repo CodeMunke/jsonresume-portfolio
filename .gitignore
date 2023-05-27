@@ -2,8 +2,11 @@
 .vscode
 
 node_modules
+nginx-conf
 
 resume.json
 build
 build.cjs
 tpl/
+
+assets/css/

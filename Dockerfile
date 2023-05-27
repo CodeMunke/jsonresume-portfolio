@@ -30,9 +30,9 @@ RUN usermod -aG sudo $username
 
 #Set up sshd keys
 RUN mkdir /var/run/sshd
-COPY assets/docker/sshd_config /etc/ssh/
+COPY docker/sshd_config /etc/ssh/
 #Generate your own keys using grunt before building the image
-COPY build/assets/ssh/id_rsa.pub ${USR_HOME}/.ssh/authorized_keys
+COPY build/ssh/id_rsa.pub ${USR_HOME}/.ssh/authorized_keys
 RUN chmod -R go= ${USR_HOME}/.ssh
 RUN chown -R ${username}:${username} ${USR_HOME}/.ssh
 
@@ -41,17 +41,18 @@ EXPOSE 22
 
 #Copy over the site source
 COPY package*.json ./
-COPY server.mjs ./
-COPY index.js ./
-COPY tpl/index.js ./tpl/index.js
-COPY moment-precise-range.js ./
-COPY assets/css/theme.css ./assets/css/theme.css
-COPY assets/onepage/index.js ./assets/onepage/index.js
-COPY assets/onepage/resume.hbs ./assets/onepage/resume.hbs
-COPY assets/onepage/style.css ./assets/onepage/style.css
+COPY build/web ./
+# COPY server.mjs ./
+# COPY index.js ./
+# COPY tpl/index.js ./tpl/index.js
+# COPY moment-precise-range.js ./
+# COPY assets/css/theme.css ./assets/css/theme.css
+# COPY assets/onepage/index.js ./assets/onepage/index.js
+# COPY assets/onepage/resume.hbs ./assets/onepage/resume.hbs
+# COPY assets/onepage/style.css ./assets/onepage/style.css
 
 #Copy over the initialization script
-COPY assets/docker/init.sh /usr/local/bin/
+COPY docker/init.sh /usr/local/bin/
 
 #Prepeare the node environment
 RUN npm ci --omit=dev

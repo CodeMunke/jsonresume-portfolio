@@ -1,37 +1,37 @@
 version: '3'
 
 services:
-  nodejs:
+  resume_srv:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        - username=fff
-        - passwd=fff
-    image: nodejs
-    container_name: nodejs
+        - username=
+        - passwd=
+    image: resume_srv
+    container_name: resume_srv
     restart: unless-stopped
     env_file:
       - ./.env
     networks:
       - app-network
-    expose:
-      - 3000
-      - 22
+    ports:
+      - "3000:3000"
   webserver:
     image: nginx:mainline-alpine
     container_name: webserver
     restart: unless-stopped
     ports:
       - "80:80"
-      - "22:22"
+      - "443:443"
     volumes:
-      - web-root:/var/www/html
+      # - web-root:/var/www/html
       - ./nginx-conf:/etc/nginx/conf.d
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
+      # - dhparam:/etc/ssl/certs
     depends_on:
-      - nodejs
+      - resume_srv
     networks:
       - app-network
   certbot:
@@ -40,20 +40,26 @@ services:
     volumes:
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
-      - web-root:/var/www/html
+      # - web-root:/var/www/html
     depends_on:
       - webserver
-    command: certonly --webroot --webroot-path=/var/www/html --email email --agree-tos --no-eff-email --staging -d sda.ddns.net -d www.sda.ddns.net
+    command: certonly --email --agree-tos --no-eff-email --force-renewal -d sda.ddns.net
 
 volumes:
   certbot-etc:
   certbot-var:
-  web-root:
-    driver: local
-    driver_opts:
-      type: none
-      device: /home/docker/jsonresume-portfolio/views/
-      o: bind
+  # web-root:
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: D:\DEV_WORKSPACE\jsonresume-portfolio
+  #     o: bind
+  # dhparam:
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: D:\DEV_WORKSPACE\jsonresume-portfolio\dhparam
+  #     o: bind
 
 networks:
   app-network:

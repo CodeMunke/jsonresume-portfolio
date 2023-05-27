@@ -1,9 +1,10 @@
 import fetch from 'node-fetch';
 import express from 'express';
 import { launch } from 'puppeteer';
-import theme from './index.js';
 
-import onepage from './assets/onepage/index.js'
+import theme from './elegant/index.js';
+import onepage from './onepage/index.js';
+
 import RemoveMarkdown from 'remove-markdown';
 
 import dotenv from 'dotenv';
