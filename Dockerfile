@@ -42,14 +42,6 @@ EXPOSE 22
 #Copy over the site source
 COPY package*.json ./
 COPY build/web ./
-# COPY server.mjs ./
-# COPY index.js ./
-# COPY tpl/index.js ./tpl/index.js
-# COPY moment-precise-range.js ./
-# COPY assets/css/theme.css ./assets/css/theme.css
-# COPY assets/onepage/index.js ./assets/onepage/index.js
-# COPY assets/onepage/resume.hbs ./assets/onepage/resume.hbs
-# COPY assets/onepage/style.css ./assets/onepage/style.css
 
 #Copy over the initialization script
 COPY docker/init.sh /usr/local/bin/

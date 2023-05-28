@@ -5,23 +5,23 @@ module.exports = function(grunt) {
         less: {
           development: {
             options: {
-              paths: ["themes/elegant/assets"]
+              paths: ["src/static/elegant/assets"]
             },
             files: {
-              "themes/elegant/style.css": "themes/elegant/assets/less/theme.less"
+              "src/static/elegant/style.css": "src/static/elegant/assets/less/theme.less"
             }
           }
         },
         watch: {
             styles: {
-                files: ['themes/elegant/assets/less/**/*.less'],
+                files: ['src/static/elegant/assets/less/**/*.less'],
                 tasks: ['less'],
                 options: {
                     nospawn: true
                 }
             },
             pug: {
-                files: ['themes/elegant/index.pug'],
+                files: ['src/static/elegant/index.pug'],
                 tasks: ['exec:compile_pug'],
                 options: {
                     nospawn: true
@@ -30,10 +30,10 @@ module.exports = function(grunt) {
         },
         exec: {
             compile_pug: {
-                cmd: 'pug -c ./themes/elegant/index.pug --out ./themes/elegant/tpl && echo module.exports = { renderResume: template }; >> ./themes/elegant/tpl/index.js'
+                cmd: 'pug -c ./src/static/elegant/index.pug --out ./src/static/elegant/tpl && echo module.exports = { renderResume: template }; >> ./src/static/elegant/tpl/index.js'
             },
             run_server: {
-                cmd: "node themes/server.mjs"
+                cmd: "node src/server.mjs"
             },
             generate_keys: {
                 cmd: function(passphrase) {
@@ -89,40 +89,48 @@ module.exports = function(grunt) {
                 expand: true
             },
             build_less: {
-                cwd: './themes/elegant',
+                cwd: './src/static/elegant',
                 src: 
                 [ 
                     'style.css'
                 ],
-                dest: './build/web/elegant',
+                dest: './build/web/static/elegant',
                 expand: true
             },
             build_main: {
-                cwd: './themes',
+                cwd: './src/static',
                 src: 
                 [ 
                     'elegant/moment-precise-range.js',
                     'elegant/index.js',
-                    'elegant/tpl/index.js',
-                    'server.mjs'
+                    'elegant/tpl/index.js'
                 ],
-                dest: './build/web',
+                dest: './build/web/static',
                 expand: true
             },
             build_onepage: {
-                cwd: './themes/onepage',
+                cwd: './src/static/onepage',
                 src: 
                 [ 
                     'resume.hbs',
                     'style.css',
                     'index.js'
                 ],
-                dest: './build/web/onepage',
+                dest: './build/web/static/onepage',
                 expand: true
             },
             favicon: {
                 cwd: './',
                 src: [ 'favicon.ico' ],
+                dest: './build/web/static',
+                expand: true
+            },
+            server: {
+                cwd: './src',
+                src: 
+                [ 
+                    'server.mjs'
+                ],
                 dest: './build/web',
                 expand: true
             }
@@ -158,6 +166,7 @@ module.exports = function(grunt) {
         'copy:build_main',
         'copy:build_less',
         'copy:build_onepage',
+        'copy:server',
         /* Uncomment this item (and the comma above) if you add a favicon.ico
            in the project root. You'll also need to uncomment the <link...> tag
            at the top of resume.template.

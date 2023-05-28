@@ -2,8 +2,8 @@ import fetch from 'node-fetch';
 import express from 'express';
 import { launch } from 'puppeteer';
 
-import theme from './elegant/index.js';
-import onepage from './onepage/index.js';
+import theme from './static/elegant/index.js';
+import onepage from './static/onepage/index.js';
 
 import RemoveMarkdown from 'remove-markdown';
 
@@ -13,9 +13,11 @@ dotenv.config();
 
 const port = process.env.PORT;
 const addr = `http://localhost:${port}/`;
-const app = express();
 const truncRegex = /⁠.+?⁠/gm;
 const resumeEndpoint = "resume";
+
+const app = express();
+const router = express.Router();
 
 var resume = await (await fetch(process.env.JSONRESUME_URL)).json();
 
@@ -69,8 +71,10 @@ const getPdf = async (isFull = true) => {
   return pdf;
 };
 
+
+
 //Export full CV into PDF
-app.get('/pdf', async (_, res) => {
+router.get('/pdf', async (_, res) => {
   const pdf = await getPdf();
   const pdfName = (resume.basics.name + "_CV.pdf").replace(' ', '_');
   res.set({
@@ -82,7 +86,7 @@ app.get('/pdf', async (_, res) => {
 });
 
 //Export resume into PDF
-app.get(`/${resumeEndpoint}Pdf`, async (_, res) => {
+router.get(`/${resumeEndpoint}Pdf`, async (_, res) => {
   const pdf = await getPdf(false);
   const pdfName = (resume.basics.name + "_resume.pdf").replace(' ', '_');
   res.set({
@@ -94,7 +98,7 @@ app.get(`/${resumeEndpoint}Pdf`, async (_, res) => {
 });
 
 //Render truncated one-page resume
-app.get(`/${resumeEndpoint}`, async (_, res) => {
+router.get(`/${resumeEndpoint}`, async (_, res) => {
   resume = await (await fetch(process.env.JSONRESUME_URL)).json();
   res.writeHead(200, {
       'Content-Type': 'text/html'
@@ -103,7 +107,7 @@ app.get(`/${resumeEndpoint}`, async (_, res) => {
 })
 
 //Render full CV
-app.get('/', async (req, res) => {
+router.get('/', async (req, res) => {
   resume = await (await fetch(process.env.JSONRESUME_URL)).json();
   const picture = resume.basics.picture && resume.basics.picture.replace(/^\//, '');
 
@@ -130,6 +134,9 @@ app.get('/', async (req, res) => {
       res.end(render(resume));
   }
 })
+
+app.use(express.static('./static'));
+app.use('/', router);
 
 app.listen(port, () => {
   console.log(`Serving CV at: ${addr}`);

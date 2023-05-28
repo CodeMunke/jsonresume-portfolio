@@ -15,8 +15,9 @@ services:
       - ./.env
     networks:
       - app-network
-    ports:
-      - "3000:3000"
+    expose:
+      - 22
+      - 3000
   webserver:
     image: nginx:mainline-alpine
     container_name: webserver
@@ -25,7 +26,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      # - web-root:/var/www/html
+      - web-root:/var/www/html
       - ./nginx-conf:/etc/nginx/conf.d
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
@@ -43,17 +44,17 @@ services:
       # - web-root:/var/www/html
     depends_on:
       - webserver
-    command: certonly --email --agree-tos --no-eff-email --force-renewal -d sda.ddns.net
+    command: certonly --webroot --webroot-path=/var/www/html --email --agree-tos --no-eff-email --force-renewal -d sda.ddns.net
 
 volumes:
   certbot-etc:
   certbot-var:
-  # web-root:
-  #   driver: local
-  #   driver_opts:
-  #     type: none
-  #     device: D:\DEV_WORKSPACE\jsonresume-portfolio
-  #     o: bind
+  web-root:
+    driver: local
+    driver_opts:
+      type: none
+      device: D:\DEV_WORKSPACE\jsonresume-portfolio\build\web\static
+      o: bind
   # dhparam:
   #   driver: local
   #   driver_opts:
