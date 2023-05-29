@@ -1,8 +1,5 @@
 FROM node:16.14.2-slim
 
-#Define the working directory
-WORKDIR /usr/src/app
-
 #Skip the chromium download for puppeteer
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 #Supply username and password at build-time using --build-arg
@@ -28,6 +25,9 @@ RUN useradd $username
 RUN echo "$username:$passwd" | chpasswd
 RUN usermod -aG sudo $username
 
+#Define the working directory
+WORKDIR ${USR_HOME}/srv
+
 #Set up sshd keys
 RUN mkdir /var/run/sshd
 COPY docker/sshd_config /etc/ssh/
@@ -36,15 +36,15 @@ COPY build/ssh/id_rsa.pub ${USR_HOME}/.ssh/authorized_keys
 RUN chmod -R go= ${USR_HOME}/.ssh
 RUN chown -R ${username}:${username} ${USR_HOME}/.ssh
 
-#Expose the ssh port
-EXPOSE 22
-
 #Copy over the site source
 COPY package*.json ./
 COPY build/web ./
 
 #Copy over the initialization script
 COPY docker/init.sh /usr/local/bin/
+
+#Restrict access to the user-level
+RUN chown -R ${username}:${username} ${USR_HOME}/srv
 
 #Prepeare the node environment
 RUN npm ci --omit=dev
