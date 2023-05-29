@@ -1,3 +1,7 @@
+const dotenv = require('dotenv')
+const fs = require('fs');
+const path = require("path");
+
 module.exports = function(grunt) {
     // Project Configuration
     grunt.initConfig({
@@ -36,11 +40,11 @@ module.exports = function(grunt) {
                 cmd: "node src/server.mjs"
             },
             generate_keys: {
-                cmd: function(passphrase) {
-                    const fs = require('fs');
-                    const path = require("path");
-
-                    grunt.log.writeln("Generating SSH keys...")
+                cmd: function() {
+                    grunt.log.writeln("Generating SSH keys...");
+                    dotenv.config({path: grunt.option('env_file') || './docker.env'});
+                    const passphrase = process.env.SSH_ASKPASS;
+                
                     process.env['SSH_ASKPASS'] = passphrase
                     process.env['DISPLAY'] = 1
                     const sshPath = __dirname + "\\build\\ssh"
@@ -66,18 +70,26 @@ module.exports = function(grunt) {
                 }
             },
             build_img: {
-                cmd: function(username, pwd, img_name="resume_server") {
-                    grunt.log.writeln("Building Docker image...")
+                cmd: function(img_name="resume_server") {
+                    grunt.log.writeln("Building Docker image...");
+
+                    dotenv.config({path: grunt.option('env_file') || './docker.env'});
+
+                    const username = process.env.USR;
+                    const pwd = process.env.PASSWORD;
+
                     return `docker build -t ${img_name} --build-arg username=${username} --build-arg passwd=${pwd} .`
                 }
             },
             run_docker: {
                 cmd: function(img_name="resume_server") {
-                    const dotenv = require('dotenv')
-                    dotenv.config();
+                    dotenv.config({path: grunt.option('env_file') || './docker.env'});
+
                     const port = process.env.PORT;
+                    const pubkey = process.env.PUBKEY_PATH;
+                    const user = process.env.USR;
                     
-                    return `docker run -p ${port}:${port} -p 22:22 --env-file ./.env ${img_name}`
+                    return `docker run -p ${port}:3000 -p 22:22 --env-file ./.env -v ${pubkey}:/home/${user}/.ssh/authorized_keys ${img_name}`
                 }
             }
         },
@@ -178,21 +190,19 @@ module.exports = function(grunt) {
         'exec:run_server'
     ]);
     grunt.registerTask('compile:pug', ['exec:compile_pug']);
-    grunt.registerTask('deploy', 'Deploy the project into Docker', function(passphrase, username, pwd, img_name="resume_server") {
-        if (!passphrase) {
-            grunt.log.error("Passphrase is required to generate SSH keys.")
-            return false
-        }
-        if (!username) {
-            grunt.log.error("Username is required to build the Docker image.")
-            return false
-        }
-        if (!pwd) {
-            grunt.log.error("Password is required to build the Docker image.")
-            return false
+    grunt.registerTask('deploy', 'Deploy the project into Docker', function(img_name="resume_server") {
+        if (!grunt.option('env_file')) {
+            grunt.log.writeln("No docker env file specified. Defaulting to docker.env...")
+
+            if (!fs.existsSync('./docker.env')){
+                grunt.log.writeln("No docker env file found! Generating with defaults...")
+
+                const defaultEnv = "PORT=3000\nSSH_ASKPASS=jsonresume\nPUBKEY_PATH=.\\build\\ssh\\id_rsa.pub\nUSR=user\nPASSWORD=docker";
+                fs.writeFileSync('./docker.env', defaultEnv);
+            }
         }
         grunt.log.writeln("Building project...")
-        grunt.task.run(['build', `exec:generate_keys:${passphrase}`, `exec:build_img:${username}:${pwd}:${img_name}`])
+        grunt.task.run(['build', `exec:generate_keys`, `exec:build_img:${img_name}`])
     });
     grunt.registerTask('run_docker', ['exec:run_docker']);
 }

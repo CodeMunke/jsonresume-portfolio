@@ -11,8 +11,7 @@ import dotenv from 'dotenv';
 import locateChrome from 'locate-chrome';
 dotenv.config();
 
-const port = process.env.PORT;
-const addr = `http://localhost:${port}/`;
+const addr = `http://localhost:3000/`;
 const truncRegex = /⁠.+?⁠/gm;
 const resumeEndpoint = "resume";
 
@@ -138,7 +137,7 @@ router.get('/', async (req, res) => {
 app.use(express.static('./static'));
 app.use('/', router);
 
-app.listen(port, () => {
+app.listen(3000, () => {
   console.log(`Serving CV at: ${addr}`);
   console.log(`Serving resume at: ${addr}${resumeEndpoint}`);
 })

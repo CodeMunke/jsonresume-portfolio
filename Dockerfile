@@ -8,9 +8,10 @@ ARG passwd
 
 #For tidiness, define the user's home dir
 ENV USR_HOME=/home/${username}
+ENV USERNAME=${username}
 
 #Get openssh and sudo
-RUN apt-get update && apt-get install -y openssh-server sudo
+RUN apt-get update && apt-get install -y openssh-server sudo bash-completion
 
 #Ensure that the bundled chromium is working with puppeteer
 RUN apt-get update && apt-get install gnupg wget -y && \
@@ -30,11 +31,8 @@ WORKDIR ${USR_HOME}/srv
 
 #Set up sshd keys
 RUN mkdir /var/run/sshd
+RUN mkdir ${USR_HOME}/.ssh
 COPY docker/sshd_config /etc/ssh/
-#Generate your own keys using grunt before building the image
-COPY build/ssh/id_rsa.pub ${USR_HOME}/.ssh/authorized_keys
-RUN chmod -R go= ${USR_HOME}/.ssh
-RUN chown -R ${username}:${username} ${USR_HOME}/.ssh
 
 #Copy over the site source
 COPY package*.json ./
