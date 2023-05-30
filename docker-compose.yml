@@ -19,6 +19,7 @@ services:
       - "22:22"
     volumes:
       - web-root:/home/${username}/srv/static
+      - ./build/ssh/id_rsa.pub:/home/${username}/.ssh/authorized_keys
   webserver:
     image: nginx:mainline-alpine
     container_name: webserver
