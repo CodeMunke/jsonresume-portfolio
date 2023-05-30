@@ -18,8 +18,8 @@ services:
     ports:
       - "22:22"
     volumes:
-      - web-root:/home/${username}/srv/static
-      - ./build/ssh/id_rsa.pub:/home/${username}/.ssh/authorized_keys
+      - web-root:/home/docker/srv/static
+      - ./build/ssh/id_rsa.pub:/home/docker/.ssh/authorized_keys
   webserver:
     image: nginx:mainline-alpine
     container_name: webserver
@@ -32,7 +32,7 @@ services:
       - ./nginx-conf:/etc/nginx/conf.d
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
-      # - dhparam:/etc/ssl/certs
+      - ./build/dhparam:/etc/ssl/certs
     depends_on:
       - resume_srv
     networks:
