@@ -5,18 +5,21 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - USER=docker
+        - PWD=drm123456
     image: resume_srv
     container_name: resume_srv
     restart: unless-stopped
     env_file:
-      - project.env
+      - ./.env
     networks:
       - app-network
     ports:
       - "22:22"
     volumes:
-      - web-root:${USR_HOME}/srv/static
-      - ./build/ssh/id_rsa.pub:${USR_HOME}/.ssh/authorized_keys
+      - web-root:/home/docker/srv/static
+      - ./build/ssh/id_rsa.pub:/home/docker/.ssh/authorized_keys
   webserver:
     image: nginx:mainline-alpine
     container_name: webserver
@@ -24,9 +27,12 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    environment:
+      - WEBROOT_PATH=/var/www/static
+      - DOMAINS=shablonov.ddns.net
     volumes:
       - web-root:/var/www/static
-      - ${CURRENT_CONFIG}:/etc/nginx/conf.d
+      - ./nginx-conf/cert-conf:/etc/nginx/conf.d
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
       - ./build/dhparam:/etc/ssl/certs
@@ -35,8 +41,6 @@ services:
       - resume_srv
     networks:
       - app-network
-    env_file:
-      - server.env
   certbot:
     image: gordonchan/auto-letsencrypt
     container_name: certbot
@@ -47,15 +51,12 @@ services:
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
       - web-root:/var/www/static
-    env_file:
-      - server.env
-    # volumes:
-    #   - certbot-etc:/etc/letsencrypt
-    #   - certbot-var:/var/lib/letsencrypt
-    #   - web-root:/var/www/static
-    # depends_on:
-    #   - webserver
-    # command: certonly --webroot --webroot-path=/var/www/html/static --email dennis.shablonov@gmail.com --agree-tos --no-eff-email --force-renewal -d shablonov.ddns.net
+    environment:
+      - EMAIL=dennis.shablonov@gmail.com
+      - SERVER_CONTAINER=webserver
+      - WEBROOT_PATH=/var/www/static
+      - DOMAINS=shablonov.ddns.net
+      - CHECK_FREQ=7
 
 volumes:
   certbot-etc:

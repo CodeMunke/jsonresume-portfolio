@@ -3,8 +3,12 @@ FROM node:16.14.2-slim
 #Skip the chromium download for puppeteer
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
+ARG PWD
+ARG USER
+
 #Define the user's home dir
 ENV USR_HOME=/home/${USR}
+ENV USR=${USER}
 
 #Get openssh and sudo
 RUN apt-get update && apt-get install -y openssh-server sudo bash-completion
@@ -43,7 +47,7 @@ RUN chown -R ${USR}:${USR} ${USR_HOME}/srv
 #Prepeare the node environment
 RUN npm ci --omit=dev
 
-ENV PWD=null SSH_ASKPASS=null
+ENV PWD= SSH_ASKPASS=
 
 #Initialize the container using the init script
 CMD ["bash","init.sh"]

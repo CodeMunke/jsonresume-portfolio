@@ -43,7 +43,7 @@ module.exports = function(grunt) {
             generate_ssh: {
                 cmd: function() {
                     grunt.log.writeln("Generating SSH keys...");
-                    dotenv.config({path: grunt.option('env_file') || './project.env'});
+                    dotenv.config({path: grunt.option('env_file') || './.env'});
                     const passphrase = process.env.SSH_ASKPASS;
                 
                     process.env['SSH_ASKPASS'] = passphrase
@@ -87,11 +87,20 @@ module.exports = function(grunt) {
             }
         },
         copy: {
+            fonts: {
+                cwd: './src/static/elegant/assets/icomoon',
+                src: 
+                [ 
+                    'fonts/**'
+                ],
+                dest: './build/web/static',
+                expand: true
+            },
             build_less: {
                 cwd: './src/static/elegant',
                 src: 
                 [ 
-                    'style.css'
+                    'style.css',
                 ],
                 dest: './build/web/static/elegant',
                 expand: true
@@ -165,6 +174,7 @@ module.exports = function(grunt) {
         'copy:build_main',
         'copy:build_less',
         'copy:build_onepage',
+        'copy:fonts',
         'copy:server',
         /* Uncomment this item (and the comma above) if you add a favicon.ico
            in the project root. You'll also need to uncomment the <link...> tag
@@ -234,8 +244,7 @@ module.exports = function(grunt) {
         archive.file('package.json');
         archive.file('.dockerignore');
         archive.file('docker-compose.yml');
-        archive.file('project.env');
-        archive.file('server.env');
+        archive.file('.env');
         archive.directory('nginx-conf/');
         archive.directory('build/');
         archive.directory('docker/');
