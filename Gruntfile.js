@@ -1,6 +1,6 @@
 const dotenv = require('dotenv')
 const fs = require('fs');
-const path = require("path");
+const dhparam = require('dhparam')
 
 module.exports = function(grunt) {
     // Project Configuration
@@ -39,7 +39,7 @@ module.exports = function(grunt) {
             run_server: {
                 cmd: "node src/server.mjs"
             },
-            generate_keys: {
+            generate_ssh: {
                 cmd: function() {
                     grunt.log.writeln("Generating SSH keys...");
                     dotenv.config({path: grunt.option('env_file') || './docker.env'});
@@ -54,17 +54,10 @@ module.exports = function(grunt) {
                         fs.mkdirSync(sshPath, { recursive: true });
                     }
                     //If it exists but isn't empty, delete everything in it
-                    else if (fs.existsSync(sshPath + "\\id_rsa")) {
+                    else if (fs.readdirSync(sshPath).length) {
                         grunt.log.writeln("Previous SSH keys found. Overwriting...")
-                        fs.readdir(sshPath, (err, files) => {
-                            if (err) throw err;
-
-                            for (const file of files) {
-                              fs.unlink(path.join(sshPath, file), (err) => {
-                                if (err) throw err;
-                              });
-                            }
-                        })
+                        fs.rmSync(sshPath, {recursive: true})
+                        fs.mkdirSync(sshPath, { recursive: true });
                     }
                     return `ssh-keygen -t rsa -b 4096 -f ${sshPath}\\id_rsa`
                 }
@@ -84,7 +77,7 @@ module.exports = function(grunt) {
             run_docker: {
                 cmd: function(img_name="resume_server") {
                     dotenv.config({path: grunt.option('env_file') || './docker.env'});
-
+                    
                     const port = process.env.PORT;
                     const pubkey = process.env.PUBKEY_PATH;
                     const user = process.env.USR;
@@ -93,7 +86,33 @@ module.exports = function(grunt) {
                 }
             },
             compose_docker: {
-                cmd: "docker-compose up -d"
+                cmd: function() {
+                    grunt.log.writeln("Building project using docker-compose.yml...");
+
+                    return 'docker-compose up -d'
+                }
+            },
+            generate_dh: {
+                cmd: function() {
+                    const dhPath = __dirname + "\\build\\dhparam"
+
+                    //If the dhparam folder doesn't exist, make one
+                    if (!fs.existsSync(dhPath)){
+                        fs.mkdirSync(dhPath, { recursive: true });
+                    }
+                    //If it exists but isn't empty, delete everything in it
+                    else if (fs.readdirSync(dhPath).length) {
+                        grunt.log.writeln("Previous Diffie-Hellman keys found. Overwriting...")
+                        fs.rmSync(dhPath, {recursive: true})
+                        fs.mkdirSync(dhPath, { recursive: true });
+                    }
+                    
+                    grunt.log.writeln("Generating 4096-bit Diffie-Hellman key. Such a task is no joke. Please wait...")
+                    var dh = dhparam(4096);
+                    fs.writeFileSync(dhPath + '\\dhparam-4096.pem', dh);
+
+                    return 'echo Complete!'
+                }
             }
         },
         copy: {
@@ -193,7 +212,13 @@ module.exports = function(grunt) {
         'exec:run_server'
     ]);
     grunt.registerTask('compile:pug', ['exec:compile_pug']);
-    grunt.registerTask('deploy_img', 'Deploy the project into Docker', function(img_name="resume_server") {
+    grunt.registerTask('deploy', 'Deploy the project into Docker', function(mode, img_name="resume_server") {
+        if (!(mode == 'image' || mode == 'project')) {
+            // grunt.log.writeln(mode)
+            grunt.log.error('Incorrect or absent deployment mode. Specify whether you want to deploy the image only (grunt deploy:image) or the Docker Compose project (grunt deploy:project).')
+        
+            return false;
+        }
         if (!grunt.option('env_file')) {
             grunt.log.writeln("No docker env file specified. Defaulting to docker.env...")
 
@@ -204,25 +229,21 @@ module.exports = function(grunt) {
                 fs.writeFileSync('./docker.env', defaultEnv);
             }
         }
-        grunt.log.writeln("Building project into Docker image...")
-        grunt.task.run(['build', `exec:generate_keys`, `exec:build_img:${img_name}`])
-    });
-    grunt.registerTask('deploy_project', 'Deploy the project using Docker Compose', function() {
-        if (!grunt.option('env_file')) {
-            grunt.log.writeln("No docker env file specified. Defaulting to docker.env...")
 
-            if (!fs.existsSync('./docker.env')){
-                grunt.log.writeln("No docker env file found! Generating with defaults...")
+        grunt.log.writeln("Building project...")
+        tasks = [
+            'build',
+            `exec:generate_ssh`,
+        ]
 
-                const defaultEnv = "PORT=3000\nSSH_ASKPASS=jsonresume\nPUBKEY_PATH=.\\build\\ssh\\id_rsa.pub\nUSR=user\nPASSWORD=docker";
-                fs.writeFileSync('./docker.env', defaultEnv);
-            }
+        if (mode == 'image') {
+            tasks.push(`exec:build_img:${img_name}`)
         }
-        grunt.log.writeln("Building project into Docker-compose project...")
-        grunt.task.run([
-            'build', 
-            `exec:generate_keys`, 
-            `exec:compose_docker`])
+        else {
+            tasks.push('exec:generate_dh','exec:compose_docker')
+        }
+
+        grunt.task.run(tasks)
     });
     grunt.registerTask('run_docker', ['exec:run_docker']);
 }

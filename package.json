@@ -51,6 +51,6 @@
     "pug": "^2.0.4",
     "sshpk": ">=1.13.2",
     "tarball-extract": "0.0.3",
-    "openssl-nodejs": "^1.0.5"
+    "dhparam": "^2.0.0"
   }
 }
