@@ -91,6 +91,9 @@ module.exports = function(grunt) {
                     
                     return `docker run -p ${port}:3000 -p 22:22 --env-file ./.env -v ${pubkey}:/home/${user}/.ssh/authorized_keys ${img_name}`
                 }
+            },
+            compose_docker: {
+                cmd: "docker-compose up -d"
             }
         },
         copy: {
@@ -190,7 +193,7 @@ module.exports = function(grunt) {
         'exec:run_server'
     ]);
     grunt.registerTask('compile:pug', ['exec:compile_pug']);
-    grunt.registerTask('deploy', 'Deploy the project into Docker', function(img_name="resume_server") {
+    grunt.registerTask('deploy_img', 'Deploy the project into Docker', function(img_name="resume_server") {
         if (!grunt.option('env_file')) {
             grunt.log.writeln("No docker env file specified. Defaulting to docker.env...")
 
@@ -201,8 +204,25 @@ module.exports = function(grunt) {
                 fs.writeFileSync('./docker.env', defaultEnv);
             }
         }
-        grunt.log.writeln("Building project...")
+        grunt.log.writeln("Building project into Docker image...")
         grunt.task.run(['build', `exec:generate_keys`, `exec:build_img:${img_name}`])
+    });
+    grunt.registerTask('deploy_project', 'Deploy the project using Docker Compose', function() {
+        if (!grunt.option('env_file')) {
+            grunt.log.writeln("No docker env file specified. Defaulting to docker.env...")
+
+            if (!fs.existsSync('./docker.env')){
+                grunt.log.writeln("No docker env file found! Generating with defaults...")
+
+                const defaultEnv = "PORT=3000\nSSH_ASKPASS=jsonresume\nPUBKEY_PATH=.\\build\\ssh\\id_rsa.pub\nUSR=user\nPASSWORD=docker";
+                fs.writeFileSync('./docker.env', defaultEnv);
+            }
+        }
+        grunt.log.writeln("Building project into Docker-compose project...")
+        grunt.task.run([
+            'build', 
+            `exec:generate_keys`, 
+            `exec:compose_docker`])
     });
     grunt.registerTask('run_docker', ['exec:run_docker']);
 }
