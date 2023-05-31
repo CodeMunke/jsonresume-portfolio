@@ -1,6 +1,7 @@
 const dotenv = require('dotenv')
 const fs = require('fs');
 const dhparam = require('dhparam')
+const archiver = require('archiver');
 
 module.exports = function(grunt) {
     // Project Configuration
@@ -42,7 +43,7 @@ module.exports = function(grunt) {
             generate_ssh: {
                 cmd: function() {
                     grunt.log.writeln("Generating SSH keys...");
-                    dotenv.config({path: grunt.option('env_file') || './docker.env'});
+                    dotenv.config({path: grunt.option('env_file') || './project.env'});
                     const passphrase = process.env.SSH_ASKPASS;
                 
                     process.env['SSH_ASKPASS'] = passphrase
@@ -62,36 +63,6 @@ module.exports = function(grunt) {
                     return `ssh-keygen -t rsa -b 4096 -f ${sshPath}\\id_rsa`
                 }
             },
-            build_img: {
-                cmd: function(img_name="resume_server") {
-                    grunt.log.writeln("Building Docker image...");
-
-                    dotenv.config({path: grunt.option('env_file') || './docker.env'});
-
-                    const username = process.env.USR;
-                    const pwd = process.env.PASSWORD;
-
-                    return `docker build -t ${img_name} --build-arg username=${username} --build-arg passwd=${pwd} .`
-                }
-            },
-            run_docker: {
-                cmd: function(img_name="resume_server") {
-                    dotenv.config({path: grunt.option('env_file') || './docker.env'});
-                    
-                    const port = process.env.PORT;
-                    const pubkey = process.env.PUBKEY_PATH;
-                    const user = process.env.USR;
-                    
-                    return `docker run -p ${port}:3000 -p 22:22 --env-file ./.env -v ${pubkey}:/home/${user}/.ssh/authorized_keys ${img_name}`
-                }
-            },
-            compose_docker: {
-                cmd: function() {
-                    grunt.log.writeln("Building project using docker-compose.yml...");
-
-                    return 'docker-compose up -d'
-                }
-            },
             generate_dh: {
                 cmd: function() {
                     const dhPath = __dirname + "\\build\\dhparam"
@@ -107,7 +78,7 @@ module.exports = function(grunt) {
                         fs.mkdirSync(dhPath, { recursive: true });
                     }
                     
-                    grunt.log.writeln("Generating 4096-bit Diffie-Hellman key. Such a task is no joke. Please wait...")
+                    grunt.log.writeln("Generating 4096-bit Diffie-Hellman key. Such a task is no joke and will take a long, LONG time. Please wait...")
                     var dh = dhparam(4096);
                     fs.writeFileSync(dhPath + '\\dhparam-4096.pem', dh);
 
@@ -116,12 +87,6 @@ module.exports = function(grunt) {
             }
         },
         copy: {
-            resumejson: {
-                cwd: './',
-                src: [ 'resume.json' ],
-                dest: './node_modules/resume-schema',
-                expand: true
-            },
             build_less: {
                 cwd: './src/static/elegant',
                 src: 
@@ -212,38 +177,83 @@ module.exports = function(grunt) {
         'exec:run_server'
     ]);
     grunt.registerTask('compile:pug', ['exec:compile_pug']);
-    grunt.registerTask('deploy', 'Deploy the project into Docker', function(mode, img_name="resume_server") {
-        if (!(mode == 'image' || mode == 'project')) {
-            // grunt.log.writeln(mode)
-            grunt.log.error('Incorrect or absent deployment mode. Specify whether you want to deploy the image only (grunt deploy:image) or the Docker Compose project (grunt deploy:project).')
+    grunt.registerTask('archive', function() {
+        var done = this.async();
+        grunt.log.writeln("Now packing your project into jsonresume.zip...")
+
+        // create a file to stream archive data to.
+        const output = fs.createWriteStream(__dirname + '/jsonresume.zip');
+        const archive = archiver('zip', {
+            zlib: { level: 9 } // Sets the compression level.
+        });
+
+        // listen for all archive data to be written
+        // 'close' event is fired only when a file descriptor is involved
+        output.on('close', function() {
+            grunt.log.ok(archive.pointer() + ' total bytes');
+            grunt.log.ok('archiver has been finalized and the output file descriptor has closed.');
+        });
         
+        // This event is fired when the data source is drained no matter what was the data source.
+        // It is not part of this library but rather from the NodeJS Stream API.
+        // @see: https://nodejs.org/api/stream.html#stream_event_end
+        output.on('end', function() {
+            grunt.log.writeln('Data has been drained');
+        });
+        
+        // good practice to catch warnings (ie stat failures and other non-blocking errors)
+        archive.on('warning', function(err) {
+            if (err.code === 'ENOENT') {
+                grunt.log.writeln(err.message)
+            } else {
+                grunt.log.error(err.message)
+                throw err;
+            }
+        });
+
+        // good practice to catch warnings (ie stat failures and other non-blocking errors)
+        archive.on('end', function() {
+            grunt.log.ok('Archivation complete. A total of %d bytes have been written.', archive.pointer());
+        });
+        
+        // good practice to catch this error explicitly
+        archive.on('error', function(err) {
+            grunt.log.error(err.message)
+            throw err;
+        });
+
+        archive.on('entry', function(entry) {
+            grunt.log.writeln(`${entry.name} written, total size of ${entry.stats.size} bytes`);
+        });
+
+        // pipe archive data to the file
+        archive.pipe(output);
+
+        archive.file('Dockerfile');
+        archive.file('package-lock.json');
+        archive.file('package.json');
+        archive.file('.dockerignore');
+        archive.file('docker-compose.yml');
+        archive.file('project.env');
+        archive.file('server.env');
+        archive.directory('nginx-conf/');
+        archive.directory('build/');
+        archive.directory('docker/');
+
+        archive.finalize().then(() => done())
+    })
+    grunt.registerTask('pack', 'Build and pack the entire project into a deployable archive', function() {
+        if (!(fs.existsSync('project.env') && fs.existsSync('server.env'))) {
+            grunt.log.error('Eiter project.env or server.env were not found; both are required to continue.');
             return false;
         }
-        if (!grunt.option('env_file')) {
-            grunt.log.writeln("No docker env file specified. Defaulting to docker.env...")
 
-            if (!fs.existsSync('./docker.env')){
-                grunt.log.writeln("No docker env file found! Generating with defaults...")
-
-                const defaultEnv = "PORT=3000\nSSH_ASKPASS=jsonresume\nPUBKEY_PATH=.\\build\\ssh\\id_rsa.pub\nUSR=user\nPASSWORD=docker";
-                fs.writeFileSync('./docker.env', defaultEnv);
-            }
-        }
-
-        grunt.log.writeln("Building project...")
         tasks = [
             'build',
             `exec:generate_ssh`,
+            'exec:generate_dh',
+            'archive'
         ]
-
-        if (mode == 'image') {
-            tasks.push(`exec:build_img:${img_name}`)
-        }
-        else {
-            tasks.push('exec:generate_dh','exec:compose_docker')
-        }
-
         grunt.task.run(tasks)
     });
-    grunt.registerTask('run_docker', ['exec:run_docker']);
 }

@@ -26,6 +26,7 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "handlebars": ">=4.0.14",
+    "helmet": "^7.0.0",
     "jsonresume-themeutils": "^1.4.3",
     "locate-chrome": "^0.1.1",
     "markdown-it": "^6.0.1",
@@ -38,6 +39,7 @@
     "underscore": "^1.6.0"
   },
   "devDependencies": {
+    "dhparam": "^2.0.0",
     "esbuild": "^0.17.8",
     "gravatar": "^1.0.6",
     "grunt": "^1.0.4",
@@ -51,6 +53,6 @@
     "pug": "^2.0.4",
     "sshpk": ">=1.13.2",
     "tarball-extract": "0.0.3",
-    "dhparam": "^2.0.0"
+    "archiver": "^5.3.1"
   }
 }

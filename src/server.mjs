@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import express from 'express';
+import helmet from "helmet";
 import { launch } from 'puppeteer';
 
 import theme from './static/elegant/index.js';
@@ -136,6 +137,17 @@ router.get('/', async (req, res) => {
 
 app.use(express.static('./static'));
 app.use('/', router);
+app.use((_, res, next) => {
+  res.locals.scpNonce = crypto.randomBytes(16).toString("hex");
+  next();
+})
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      scriptSrc: ["'self'", (_, res) => `'nonce-${res.locals.scpNonce}'`]
+    }
+  }
+}));
 
 app.listen(3000, () => {
   console.log(`Serving CV at: ${addr}`);

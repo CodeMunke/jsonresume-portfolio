@@ -5,21 +5,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        - username=docker
-        - passwd=drm123456
     image: resume_srv
     container_name: resume_srv
     restart: unless-stopped
     env_file:
-      - ./.env
+      - project.env
     networks:
       - app-network
     ports:
       - "22:22"
     volumes:
-      - web-root:/home/docker/srv/static
-      - ./build/ssh/id_rsa.pub:/home/docker/.ssh/authorized_keys
+      - web-root:${USR_HOME}/srv/static
+      - ./build/ssh/id_rsa.pub:${USR_HOME}/.ssh/authorized_keys
   webserver:
     image: nginx:mainline-alpine
     container_name: webserver
@@ -28,36 +25,42 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - web-root:/var/www/html/static
-      - ./nginx-conf:/etc/nginx/conf.d
+      - web-root:/var/www/static
+      - ${CURRENT_CONFIG}:/etc/nginx/conf.d
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
       - ./build/dhparam:/etc/ssl/certs
+      - ./nginx-conf/template-variables.conf:/etc/nginx/templates/10-variables.conf.template
     depends_on:
       - resume_srv
     networks:
       - app-network
+    env_file:
+      - server.env
   certbot:
-    image: certbot/certbot
+    image: gordonchan/auto-letsencrypt
     container_name: certbot
+    depends_on:
+      - webserver
+    restart: unless-stopped
     volumes:
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
-      - web-root:/var/www/html/static
-    depends_on:
-      - webserver
-    command: certonly --webroot --webroot-path=/var/www/html/static --email dennis.shablonov@gmail.com --agree-tos --no-eff-email --force-renewal -d sda.ddns.net -d sda.viewdns.net
+      - web-root:/var/www/static
+    env_file:
+      - server.env
+    # volumes:
+    #   - certbot-etc:/etc/letsencrypt
+    #   - certbot-var:/var/lib/letsencrypt
+    #   - web-root:/var/www/static
+    # depends_on:
+    #   - webserver
+    # command: certonly --webroot --webroot-path=/var/www/html/static --email dennis.shablonov@gmail.com --agree-tos --no-eff-email --force-renewal -d shablonov.ddns.net
 
 volumes:
   certbot-etc:
   certbot-var:
   web-root:
-  # dhparam:
-  #   driver: local
-  #   driver_opts:
-  #     type: none
-  #     device: D:\DEV_WORKSPACE\jsonresume-portfolio\dhparam
-  #     o: bind
 
 networks:
   app-network:

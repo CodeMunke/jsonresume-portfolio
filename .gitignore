@@ -1,9 +1,8 @@
-.env
-docker.env
+*.env
+.envs
 .vscode
 
 node_modules
-nginx-conf
 
 resume.json
 build
@@ -11,3 +10,5 @@ build.cjs
 tpl/
 
 assets/css/
+favicon.ico
+jsonresume.zip
