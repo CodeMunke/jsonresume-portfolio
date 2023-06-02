@@ -13,7 +13,7 @@ module.exports = function(grunt) {
               paths: ["src/static/elegant/assets"]
             },
             files: {
-              "src/static/elegant/style.css": "src/static/elegant/assets/less/theme.less"
+              "src/static/elegant/css/style.css": "src/static/elegant/assets/less/theme.less"
             }
           }
         },
@@ -38,28 +38,35 @@ module.exports = function(grunt) {
                 cmd: 'pug -c ./src/static/elegant/index.pug --out ./src/static/elegant/tpl && echo module.exports = { renderResume: template }; >> ./src/static/elegant/tpl/index.js'
             },
             run_server: {
-                cmd: "node src/server.mjs"
+                cmd: "node ./build/web/server.mjs"
             },
             generate_ssh: {
                 cmd: function() {
-                    grunt.log.writeln("Generating SSH keys...");
-                    dotenv.config({path: grunt.option('env_file') || './.env'});
-                    const passphrase = process.env.SSH_ASKPASS;
-                
-                    process.env['SSH_ASKPASS'] = passphrase
-                    process.env['DISPLAY'] = 1
                     const sshPath = __dirname + "\\build\\ssh"
-
                     //If the ssh folder doesn't exist, make one
                     if (!fs.existsSync(sshPath)){
                         fs.mkdirSync(sshPath, { recursive: true });
                     }
                     //If it exists but isn't empty, delete everything in it
                     else if (fs.readdirSync(sshPath).length) {
-                        grunt.log.writeln("Previous SSH keys found. Overwriting...")
+                        if (grunt.option('over'))
+                            grunt.log.writeln("Previous SSH keys found. Overwriting...")
+                        else
+                        {
+                            grunt.log.error("Previous SSH keys found. Aborting...");
+                            return false
+                        }
+
                         fs.rmSync(sshPath, {recursive: true})
                         fs.mkdirSync(sshPath, { recursive: true });
                     }
+                    grunt.log.writeln("Generating SSH keys...");
+                    dotenv.config({path: grunt.option('env_file') || './.env'});
+                    const passphrase = process.env.SSH_ASKPASS;
+                
+                    process.env['SSH_ASKPASS'] = passphrase
+                    process.env['DISPLAY'] = 1
+
                     return `ssh-keygen -t rsa -b 4096 -f ${sshPath}\\id_rsa`
                 }
             },
@@ -73,7 +80,13 @@ module.exports = function(grunt) {
                     }
                     //If it exists but isn't empty, delete everything in it
                     else if (fs.readdirSync(dhPath).length) {
-                        grunt.log.writeln("Previous Diffie-Hellman keys found. Overwriting...")
+                        if (grunt.option('over'))
+                            grunt.log.writeln("Previous Diffie-Hellman keys found. Overwriting...")
+                        else
+                        {
+                            grunt.log.error("Previous Diffie-Hellman keys found. Aborting...");
+                            return false
+                        }
                         fs.rmSync(dhPath, {recursive: true})
                         fs.mkdirSync(dhPath, { recursive: true });
                     }
@@ -88,35 +101,31 @@ module.exports = function(grunt) {
         },
         copy: {
             fonts: {
-                cwd: './src/static/elegant/assets/icomoon',
+                cwd: './src/static/elegant/assets',
                 src: 
                 [ 
-                    'fonts/**'
+                    'icomoon/fonts/**',
+                    'google/fonts/**'
                 ],
-                dest: './build/web/static',
-                expand: true
+                dest: './build/web/static/fonts',
+                filter: 'isFile',
+                expand: true,
+                flatten: true
             },
-            build_less: {
-                cwd: './src/static/elegant',
-                src: 
-                [ 
-                    'style.css',
-                ],
-                dest: './build/web/static/elegant',
-                expand: true
-            },
-            build_main: {
+            copy_elegant: {
                 cwd: './src/static',
                 src: 
                 [ 
                     'elegant/moment-precise-range.js',
-                    'elegant/index.js',
-                    'elegant/tpl/index.js'
+                    'elegant/index.mjs',
+                    'elegant/tpl/index.js',
+                    'elegant/css/style.css',
+                    '*'
                 ],
                 dest: './build/web/static',
                 expand: true
             },
-            build_onepage: {
+            copy_onepage: {
                 cwd: './src/static/onepage',
                 src: 
                 [ 
@@ -125,12 +134,6 @@ module.exports = function(grunt) {
                     'index.js'
                 ],
                 dest: './build/web/static/onepage',
-                expand: true
-            },
-            favicon: {
-                cwd: './',
-                src: [ 'favicon.ico' ],
-                dest: './build/web/static',
                 expand: true
             },
             server: {
@@ -145,7 +148,11 @@ module.exports = function(grunt) {
         },
         clean: {
             build: {
-                src: [ 'build' ]
+                src: [ 
+                    // '!./build/ssh/**',
+                    // '!./build/dhparam/**',
+                    './build/web',
+                ]
             }
         }
     });
@@ -171,16 +178,16 @@ module.exports = function(grunt) {
         'clean',
         'less',
         'exec:compile_pug',
-        'copy:build_main',
-        'copy:build_less',
-        'copy:build_onepage',
+        'copy:copy_elegant',
+        // 'copy:build_less',
+        'copy:copy_onepage',
         'copy:fonts',
         'copy:server',
         /* Uncomment this item (and the comma above) if you add a favicon.ico
            in the project root. You'll also need to uncomment the <link...> tag
            at the top of resume.template.
          */
-        'copy:favicon'
+        // 'copy:favicon'
     ]);
     grunt.registerTask('serve', [
         'build',

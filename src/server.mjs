@@ -1,9 +1,9 @@
 import fetch from 'node-fetch';
 import express from 'express';
-// import helmet from "helmet";
 import { launch } from 'puppeteer';
+// import helmet from 'helmet';
 
-import theme from './static/elegant/index.js';
+import renderResume from './static/elegant/index.mjs';
 import onepage from './static/onepage/index.js';
 
 import RemoveMarkdown from 'remove-markdown';
@@ -26,17 +26,18 @@ const executablePath = await new Promise(resolve => locateChrome((arg) => resolv
 //Renders the requested resume
 function render(resume, isFull = true) {
   try {
-    if (isFull)
+    if (isFull) {
       //Remove all word joiners
-      return theme.render(JSON.parse(JSON.stringify(resume).replaceAll('⁠', '')));
+      return renderResume(JSON.parse(JSON.stringify(resume).replaceAll('⁠', '')));
+    }
     else {
       //Remove: markdown formatting, everything marked with word joiners AND the '>' symbol
       const shortResumeStr = RemoveMarkdown(JSON.stringify(resume)).replace(truncRegex, '').replaceAll('>', '');
-      return onepage.render(JSON.parse(shortResumeStr));
+      return {html: onepage.render(JSON.parse(shortResumeStr)), nonce: null};
     }
   } catch (e) {
       console.log(e.message);
-      return '';
+      return {html: '', nonce: null};
   }
 }
 
@@ -103,7 +104,7 @@ router.get(`/${resumeEndpoint}`, async (_, res) => {
   res.writeHead(200, {
       'Content-Type': 'text/html'
   });
-  res.end(render(resume, false));
+  res.end(render(resume, false).html);
 })
 
 //Render full CV
@@ -128,15 +129,21 @@ router.get('/', async (req, res) => {
           }
       }
   } else {
+      const result = render(resume);
+      const nonceJs = result.nonces.filter(obj => obj.type == 'js').map(({nonce}) => nonce).join(' ')
+      const nonceCss = result.nonces.filter(obj => obj.type == 'css').map(({nonce}) => nonce).join(' ')
+      const csp = `default-src * data: 'self'; img-src user-images.githubusercontent.com; style-src 'self' ${nonceCss}; script-src 'self' ${nonceJs}`;
       res.writeHead(200, {
+          'Content-Security-Policy': csp,
           'Content-Type': 'text/html'
       });
-      res.end(render(resume));
+      res.end(result.html);
   }
 })
 
 app.use(express.static('./static'));
 app.use('/', router);
+// app.use(helmet());
 // app.use((_, res, next) => {
 //   res.locals.scpNonce = crypto.randomBytes(16).toString("hex");
 //   next();

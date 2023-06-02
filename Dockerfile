@@ -7,7 +7,7 @@ ARG PWD
 ARG USER
 
 #Define the user's home dir
-ENV USR_HOME=/home/${USR}
+ENV USR_HOME=/home/${USER}
 ENV USR=${USER}
 
 #Get openssh and sudo

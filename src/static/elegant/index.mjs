@@ -1,22 +1,27 @@
-const fs = require('fs');
 
-const _ = require('underscore');
-const utils = require('jsonresume-themeutils');
-const moment = require('moment');
-const markdown = require('markdown-it')({
-    breaks: true
-}).use(require('markdown-it-abbr'));
+import { randomBytes } from 'crypto';
+import fs from 'fs';
+import utils from 'jsonresume-themeutils';
+import moment from 'moment';
+import md from 'markdown-it'
+import md_abbr from 'markdown-it-abbr'
+const markdown = md({breaks: true}).use(md_abbr)
+import { renderResume } from './tpl/index.js';
+import './moment-precise-range.js'
 
-const { renderResume } = require('./tpl/index');
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-require('./moment-precise-range.js');
+import _ from 'underscore';
 
 utils.setConfig({ date_format: 'MMM, YYYY' });
 
-function render(resume) {
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+export default function render(resume) {
     const addressAttrs = ['address', 'city', 'region', 'countryCode', 'postalCode'];
     const addressValues = addressAttrs.map(key => resume.basics.location[key]);
-    const css = fs.readFileSync(__dirname + '/style.css', 'utf-8');
+    const css = fs.readFileSync(__dirname + '//css//style.css', 'utf-8');
 
     resume.basics.picture = utils.getUrlForPicture(resume);
     resume.basics.summary = convertMarkdown(resume.basics.summary);
@@ -160,12 +165,37 @@ function render(resume) {
         r.reference = convertMarkdown(r.reference);
     });
 
-    return renderResume({
+    var result = renderResume({
         resume: resume,
         floating_nav_items: getFloatingNavItems(resume),
         css: css,
         _: _
     });
+
+    var nonces = []
+
+    return substituteNonces(insertCssNonce(result, nonces), nonces);
+}
+
+function insertCssNonce(html, nonces) {
+    let nonce = randomBytes(16).toString('hex');
+    html = html.replace('<style>', `<style nonce=${nonce}>`);
+    nonces.push({nonce: `'nonce-${nonce}'`, type: 'css'})
+
+    return html
+}
+
+function substituteNonces(html, nonces) {
+    const noncePlaceholder = '#nonce#';
+    const count = (html.match(noncePlaceholder) || []).length;
+
+    for (let i = 0; i < count; i++) {
+        let nonce = randomBytes(16).toString('hex');
+        html = html.replace(noncePlaceholder, nonce);
+        nonces.push({nonce: `'nonce-${nonce}'`, type: 'js'})
+    }
+
+    return {html, nonces};
 }
 
 function interpolate(object, keyPath) {
@@ -209,5 +239,3 @@ function getFloatingNavItems(resume) {
         return !_.isEmpty(value);
     });
 }
-
-module.exports = { render };
