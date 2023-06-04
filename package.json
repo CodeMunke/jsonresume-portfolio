@@ -26,7 +26,6 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "handlebars": ">=4.0.14",
-    "helmet": "^7.0.0",
     "jsonresume-themeutils": "^1.4.3",
     "locate-chrome": "^0.1.1",
     "markdown-it": "^6.0.1",

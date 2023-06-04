@@ -1,7 +1,6 @@
 import fetch from 'node-fetch';
 import express from 'express';
 import { launch } from 'puppeteer';
-// import helmet from 'helmet';
 
 import renderResume from './static/elegant/index.mjs';
 import onepage from './static/onepage/index.js';
@@ -132,7 +131,7 @@ router.get('/', async (req, res) => {
       const result = render(resume);
       const nonceJs = result.nonces.filter(obj => obj.type == 'js').map(({nonce}) => nonce).join(' ')
       const nonceCss = result.nonces.filter(obj => obj.type == 'css').map(({nonce}) => nonce).join(' ')
-      const csp = `default-src * data: 'self'; img-src user-images.githubusercontent.com; style-src 'self' ${nonceCss}; script-src 'self' ${nonceJs}`;
+      const csp = `default-src * data: 'self'; img-src 'self' user-images.githubusercontent.com; style-src 'self' ${nonceCss}; script-src 'self' ${nonceJs}`;
       res.writeHead(200, {
           'Content-Security-Policy': csp,
           'Content-Type': 'text/html'
@@ -143,18 +142,6 @@ router.get('/', async (req, res) => {
 
 app.use(express.static('./static'));
 app.use('/', router);
-// app.use(helmet());
-// app.use((_, res, next) => {
-//   res.locals.scpNonce = crypto.randomBytes(16).toString("hex");
-//   next();
-// })
-// app.use(helmet({
-//   contentSecurityPolicy: {
-//     directives: {
-//       scriptSrc: ["'self'", (_, res) => `'nonce-${res.locals.scpNonce}'`]
-//     }
-//   }
-// }));
 
 app.listen(3000, () => {
   console.log(`Serving CV at: ${addr}`);

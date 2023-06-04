@@ -27,40 +27,36 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    environment:
-      - WEBROOT_PATH=/var/www/static
-      - DOMAINS=shablonov.ddns.net
     volumes:
       - web-root:/var/www/static
-      - ./nginx-conf/cert-conf:/etc/nginx/conf.d
-      # - certbot-etc:/etc/letsencrypt
-      # - certbot-var:/var/lib/letsencrypt
-      # - ./build/dhparam:/etc/ssl/certs
-      - ./nginx-conf/template-variables.conf:/etc/nginx/templates/10-variables.conf.template
+      - ./nginx-conf:/etc/nginx/conf.d
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - ./build/dhparam:/etc/ssl/certs
     depends_on:
       - resume_srv
     networks:
       - app-network
-  # certbot:
-  #   image: gordonchan/auto-letsencrypt
-  #   container_name: certbot
-  #   depends_on:
-  #     - webserver
-  #   restart: unless-stopped
-  #   volumes:
-  #     - certbot-etc:/etc/letsencrypt
-  #     - certbot-var:/var/lib/letsencrypt
-  #     - web-root:/var/www/static
-  #   environment:
-  #     - EMAIL=dennis.shablonov@gmail.com
-  #     - SERVER_CONTAINER=webserver
-  #     - WEBROOT_PATH=/var/www/static
-  #     - DOMAINS=shablonov.ddns.net
-  #     - CHECK_FREQ=7
+  certbot:
+    image: gordonchan/auto-letsencrypt
+    container_name: certbot
+    depends_on:
+      - webserver
+    restart: unless-stopped
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - web-root:/var/www/static
+    environment:
+      - EMAIL=dennis.shablonov@gmail.com
+      - SERVER_CONTAINER=webserver
+      - WEBROOT_PATH=/var/www/static
+      - DOMAINS=shablonov.ddns.net
+      - CHECK_FREQ=7
 
 volumes:
-  # certbot-etc:
-  # certbot-var:
+  certbot-etc:
+  certbot-var:
   web-root:
 
 networks:
