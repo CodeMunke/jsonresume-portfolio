@@ -47,7 +47,5 @@ RUN chown -R ${USR}:${USR} ${USR_HOME}/srv
 #Prepeare the node environment
 RUN npm ci --omit=dev
 
-ENV PWD= SSH_ASKPASS=
-
 #Initialize the container using the init script
 CMD ["bash","init.sh"]

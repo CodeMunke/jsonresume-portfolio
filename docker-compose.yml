@@ -11,8 +11,8 @@ services:
     image: resume_srv
     container_name: resume_srv
     restart: unless-stopped
-    env_file:
-      - ./.env
+    environment:
+      - JSONRESUME_URL=https://gist.githubusercontent.com/CodeMunke/09d36dd08fd0d7af2c7c1c715211c860/raw/resume.json
     networks:
       - app-network
     ports:

@@ -38,6 +38,7 @@
     "underscore": "^1.6.0"
   },
   "devDependencies": {
+    "archiver": "^5.3.1",
     "dhparam": "^2.0.0",
     "esbuild": "^0.17.8",
     "gravatar": "^1.0.6",
@@ -52,6 +53,6 @@
     "pug": "^2.0.4",
     "sshpk": ">=1.13.2",
     "tarball-extract": "0.0.3",
-    "archiver": "^5.3.1"
+    "prompt-sync": "^4.2.0"
   }
 }

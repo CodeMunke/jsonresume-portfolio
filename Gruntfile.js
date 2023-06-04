@@ -1,7 +1,7 @@
-const dotenv = require('dotenv')
 const fs = require('fs');
 const dhparam = require('dhparam')
 const archiver = require('archiver');
+const prompt = require('prompt-sync')({sigint: true})
 
 module.exports = function(grunt) {
     // Project Configuration
@@ -54,16 +54,21 @@ module.exports = function(grunt) {
                         else
                         {
                             grunt.log.error("Previous SSH keys found. Aborting...");
+                            grunt.log.error("Start the task with '--over' option to overwrite them.");
                             return false
                         }
 
                         fs.rmSync(sshPath, {recursive: true})
                         fs.mkdirSync(sshPath, { recursive: true });
                     }
+
+                    const passphrase = prompt('Please enter a passphrase for the RSA keys: ')
+                    if (passphrase === null || passphrase == '') {
+                        grunt.log.error("Passphrase hasn't been entered. Aborting...");
+                        return false
+                    }
+
                     grunt.log.writeln("Generating SSH keys...");
-                    dotenv.config({path: grunt.option('env_file') || './.env'});
-                    const passphrase = process.env.SSH_ASKPASS;
-                
                     process.env['SSH_ASKPASS'] = passphrase
                     process.env['DISPLAY'] = 1
 
@@ -85,6 +90,7 @@ module.exports = function(grunt) {
                         else
                         {
                             grunt.log.error("Previous Diffie-Hellman keys found. Aborting...");
+                            grunt.log.error("Start the task with '--over' option to overwrite them.");
                             return false
                         }
                         fs.rmSync(dhPath, {recursive: true})
@@ -149,8 +155,6 @@ module.exports = function(grunt) {
         clean: {
             build: {
                 src: [ 
-                    // '!./build/ssh/**',
-                    // '!./build/dhparam/**',
                     './build/web',
                 ]
             }
@@ -179,7 +183,6 @@ module.exports = function(grunt) {
         'less',
         'exec:compile_pug',
         'copy:copy_elegant',
-        // 'copy:build_less',
         'copy:copy_onepage',
         'copy:fonts',
         'copy:server',
@@ -251,7 +254,6 @@ module.exports = function(grunt) {
         archive.file('package.json');
         archive.file('.dockerignore');
         archive.file('docker-compose.yml');
-        archive.file('.env');
         archive.directory('nginx-conf/');
         archive.directory('build/');
         archive.directory('docker/');
@@ -259,11 +261,6 @@ module.exports = function(grunt) {
         archive.finalize().then(() => done())
     })
     grunt.registerTask('pack', 'Build and pack the entire project into a deployable archive', function() {
-        if (!(fs.existsSync('project.env') && fs.existsSync('server.env'))) {
-            grunt.log.error('Eiter project.env or server.env were not found; both are required to continue.');
-            return false;
-        }
-
         tasks = [
             'build',
             `exec:generate_ssh`,
