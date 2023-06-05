@@ -255,6 +255,7 @@ module.exports = function(grunt) {
         archive.file('.dockerignore');
         archive.file('docker-compose.yml');
         archive.file('.env');
+        archive.file('deploy.ps1');
         archive.directory('nginx-conf/');
         archive.directory('build/');
         archive.directory('docker/');

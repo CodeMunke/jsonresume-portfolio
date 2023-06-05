@@ -1,16 +1,30 @@
-# Portfolio complex (CV + Resume)
+# Portfolio complex (CV + Resume) on Docker
 
-A site-portfolio designed to streamline the resume and CV generation process based on two [JSONResume](https://jsonresume.org/) themes and a little bit of CSS/JS greasing.
+A site-portfolio designed to streamline the resume and CV generation process based on two [JSONResume](https://jsonresume.org/) themes and a ~~little bit~~ LOT of CSS/JS greasing, hosted on nodejs Docker container, NGINX reverse proxy and an [automatic certbot image](https://github.com/gchan/auto-letsencrypt).
 
-## Architecture
+## Architecture of the site
+
+### The site
 
 The site consists of three modules:
 
 1. **Main/CV module**: for portfolio serving and CV generation. It uses the [Elegant](https://github.com/mudassir0909/jsonresume-theme-elegant) JSONResume theme as base. Written using JS and LESS + Pug/Jade.
-2. **Resume module**: made for serving and generation of the **truncated one-page resume**. Based on the [OnePage](https://github.com/ainsleyc/jsonresume-theme-onepage) JSONResume theme. Extremely simplistic, written in JS + CSS + HBS placed in `assets/onepage/`;
+2. **Resume module**: made for serving and generation of the **truncated one-page resume**. Based on the [OnePage](https://github.com/ainsleyc/jsonresume-theme-onepage) JSONResume theme. Extremely simplistic, written in JS + CSS + HBS placed in `src/static/onepage/`;
 3. **Backend module**: made to serve and handle the above frontend modules. Made with NodeJS. Located entirely within `server.mjs`.
 
-***The project uses `.env` environment variables, don't forget to define them!***
+### The Docker container
+
+The `resume_srv` container is created to support puppeteer and creates a user with a given `USR` and `PWD` variables being used as username and password respectively. Both of these variables are passed at build-time.
+
+The container that hosts the site also can be accessed via SSH. The public key is mounted as `build/ssh/id_rsa.pub` and you should use your private key `build/ssh/id_rsa` to authenticate because password-based authentication is disabled. Using SSH, you can do hot changes to the server if necessary.
+
+## The NGINX reverse proxy
+
+The `webserver` container is based on a pretty much a bog-standard, unmodified nginx-alpine image, but with a ton of mounts.
+
+## The automatic certbot
+
+The `certbot` container is designed to automatically check for SSL certificate validity.
 
 ## How to deploy
 
@@ -25,7 +39,7 @@ Make your own resume.json like specified in `resume_example.json` and either ref
 * The server truncates everything in `resume.json` that is placed between the [word joiners](https://unicode-table.com/en/2060/) when it renders the resume. ***They won't be removed when rendering the full CV.*** Example:
   >I'm rendering a truncated one-page resume for these HR people⁠;~~ but my resume.json is too large, oh noes!⁠~~ Thankfully, the server removes the last bit between the word joiners (yes, you can't see them).
 
-### **Prepare the project**
+### **Prepare the development environment**
 
 ```bash
 git clone https://github.com/CodeMunke/jsonresume-portfolio.git
@@ -35,32 +49,14 @@ cd jsonresume-portfolio
 npm install
 ```
 
-Then, create the `.env` file:
-
-```bash
-touch .env
-```
-
-And define 2 variables there:
-
-```bash
-#Serving port.
-PORT=3000
-
-#URL to resume.json
-JSONRESUME_URL="your_link_here"
-```
-
-On the other hand, if you intend to run the server as a [systemd daemon](https://nodesource.com/blog/running-your-node-js-app-with-systemd-part-1/) you can instead copypaste the contents of the `.env` file into the [systemd environment file](https://flatcar-linux.org/docs/latest/setup/systemd/environment-variables/).
-
 ### **Build and run!**
 
 ```bash
 #To build AND serve
 $ grunt serve
 ...
-Serving CV at: http://localhost:{PORT}/
-Serving resume at: http://localhost:{PORT}/{resumeEndpoint}
+Serving CV at: http://localhost:3000/
+Serving resume at: http://localhost:3000/{resumeEndpoint}
 
 #To build only
 grunt build
@@ -68,15 +64,49 @@ grunt build
 #To serve only
 $ grunt exec:run_server
 ...
-Serving CV at: http://localhost:{PORT}/
-Serving resume at: http://localhost:{PORT}/{resumeEndpoint}
-
-#Alternatively...
-$ node server.mjs
-...
-Serving CV at: http://localhost:{PORT}/
-Serving resume at: http://localhost:{PORT}/{resumeEndpoint}
+Serving CV at: http://localhost:3000/
+Serving resume at: http://localhost:3000/{resumeEndpoint}
 ```
+
+Don't be alarmed if the site loads without fonts or icons because they're supposed to be hosted locally with NGINX.
+
+### **Deploy to Docker**
+
+Before you can begin, you need to do 3 things to your project:
+
+* Build it using `grunt build`
+* Generate RSA keys for SSH using `grunt exec:generate_ssh`. You will be prompted to enter a passphrase.
+* Generate the Diffie-Hellman keys using `grunt exec:generate_dh`. It's a very long process but it gets done eventually, so don't be alarmed.
+
+Then, you need to add the `.env` environment variable file.
+
+```bash
+#URL to resume.json
+JSONRESUME_URL=link_goes_here
+
+#Pubkey for the server to mount
+PUBKEY=./build/ssh/id_rsa.pub
+
+#Username of the user
+USR=docker
+
+#Password of the user
+PWD=resume
+
+#Internal path to the webroot directory
+WEBROOT=/var/www/static
+
+#Email to register the certificate with
+EMAIL=ex.ex@gmail.com
+
+#Hosting domain
+DOMAIN=mydomain.com
+```
+
+This file will be used by **docker-compose** to substitute the variables specified in it.
+
+After this, you can just launch `deploy.ps1` Powershell script as administrator. Don't forget to change the script running permissions by running `Set-ExecutionPolicy RemoteSigned` as administrator.
+
 
 ### **Regarding modifications and contributions**
 
@@ -90,10 +120,7 @@ The key feature of this portfolio complex is that it has TWO buttons:
 
 * *Download resume*; this one exports the CV into a truncated *hopefully* one-page resume *(depends on how much of your CV you're willing to let go of using the word joiners)*. No bling; no icons; spartan, strct and short.
 * *Download full CV*; this one, however, does a full export of your CV with no compomises. Icons, sections, socials, all rendered into a neat printable form.
-  
+* *SSH access to the server*; the server can be accessed via SSH with a private key.
+* *Super-secure!*; the web security measures undertaken make this site pretty secure. Proof [here](https://www.ssllabs.com/ssltest/analyze.html?d=sda.ddns.net) and [there](https://securityheaders.com/?q=sda.ddns.net&followRedirects=on).
+
 Both of them export the CV and truncated resume into neat PDFs, yay! 😄
-
-## Roadmap and room for improvment
-
-* [ ] Resolve the custom fontpack/iconpack problem
-* [ ] Streamline the resume.json edits using GitHub actions
