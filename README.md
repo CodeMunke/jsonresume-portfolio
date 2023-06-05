@@ -30,7 +30,7 @@ The `certbot` container is designed to automatically check for SSL certificate v
 
 ### **Define resume.json**
 
-Make your own resume.json like specified in `resume_example.json` and either referece it in your file system or host it elsewhere (I, for example, host it on GitHub gists). There are key differences between the usual `resume.json` format and this one:
+Make your own resume.json as specified and either referece it in your file system or host it elsewhere (I, for example, host it on GitHub gists). There are key differences between the usual `resume.json` format and this one:
 
 * It has and uses `resume.basics.objective`, the objective of your job search;
 * It Uses `resume.picture` instead of `resume.image`;
@@ -107,6 +107,11 @@ This file will be used by **docker-compose** to substitute the variables specifi
 
 After this, you can just launch `deploy.ps1` Powershell script as administrator. Don't forget to change the script running permissions by running `Set-ExecutionPolicy RemoteSigned` as administrator.
 
+### **Um... Portability?**
+
+Got it covered. Run `grunt pack` to do all preparations to deployment and pack it into a .zip archive or run `grunt archive` if you did them already to just package it.
+
+Unpack the archive on the host machine of your choice, edit the `.env` variables as you see fit and run `deploy.ps1`.
 
 ### **Regarding modifications and contributions**
 
