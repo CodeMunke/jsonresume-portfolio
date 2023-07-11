@@ -36,9 +36,8 @@ Make your own resume.json as specified and either referece it in your file syste
 * It Uses `resume.picture` instead of `resume.image`;
 * Since this project is based on the Elegant theme, [which supports Markdown rendering](https://github.com/mudassir0909/jsonresume-theme-elegant#markdown-supported) you can format your text in this way;
 * It uses `resume.work[i].url` instead of `resume.work[i].website`;
-* The server truncates everything in `resume.json` that is placed between the [word joiners](https://unicode-table.com/en/2060/) when it renders the resume. ***They won't be removed when rendering the full CV.*** Example:
-  >I'm rendering a truncated one-page resume for these HR people⁠;~~ but my resume.json is too large, oh noes!⁠~~ Thankfully, the server removes the last bit between the word joiners (yes, you can't see them).
-
+* The server truncates everything in `resume.json` that is placed between the [word joiners](https://unicode-table.com/en/2060/) when it renders the resume. ***They won't be removed when rendering the full CV.***
+  
 ### **Prepare the development environment**
 
 ```bash
