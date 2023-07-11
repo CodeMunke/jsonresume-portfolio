@@ -2,7 +2,7 @@
 
 A site-portfolio designed to streamline the resume and CV generation process based on two [JSONResume](https://jsonresume.org/) themes and a ~~little bit~~ LOT of CSS/JS greasing, hosted on nodejs Docker container, NGINX reverse proxy and an [automatic certbot image](https://github.com/gchan/auto-letsencrypt).
 
-## Architecture of the site
+## Architecture of the $site
 
 ### The site
 
@@ -105,13 +105,19 @@ DOMAIN=mydomain.com
 
 This file will be used by **docker-compose** to substitute the variables specified in it.
 
+#### On Windows (that supports WSL 2)
+
 After this, you can just launch `deploy.ps1` Powershell script as administrator. Don't forget to change the script running permissions by running `Set-ExecutionPolicy RemoteSigned` as administrator.
+
+#### On Linux-based OSes
+
+Launch `deploy.sh` in bash. Whether it requires to be run as `sudo` or `root` depends on your [docker configuration](https://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo).
 
 ### **Um... Portability?**
 
 Got it covered. Run `grunt pack` to do all preparations to deployment and pack it into a .zip archive or run `grunt archive` if you did them already to just package it.
 
-Unpack the archive on the host machine of your choice, edit the `.env` variables as you see fit and run `deploy.ps1`.
+Unpack the archive on the host machine of your choice, edit the `.env` variables as you see fit and run `deploy.ps1` or `deploy.sh` depending on the OS.
 
 ### **Regarding modifications and contributions**
 
