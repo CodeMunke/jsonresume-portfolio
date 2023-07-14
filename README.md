@@ -71,6 +71,7 @@ Don't be alarmed if the site loads without fonts or icons because they're suppos
 
 ### **Deploy to Docker**
 
+
 Before you can begin, you need to do 3 things to your project:
 
 * Build it using `grunt build`
@@ -103,6 +104,15 @@ DOMAIN=mydomain.com
 ```
 
 This file will be used by **docker-compose** to substitute the variables specified in it.
+
+### **⚠️ IMPORTANT ⚠️**
+
+Before deployment, make sure that:
+
+1. All `.sh` files are in `LF` End of Line format, otherwise these scripts **WILL NOT LAUNCH.**
+2. That the `.env` file described above is in the project root, where the `docker-compose` file is. Otherwise, it **WILL NOT LAUNCH**.
+
+### **Deploying on different OSes**
 
 #### On Windows (that supports WSL 2)
 
