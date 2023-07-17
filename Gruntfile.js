@@ -35,7 +35,7 @@ module.exports = function(grunt) {
         },
         exec: {
             compile_pug: {
-                cmd: 'pug -c ./src/static/elegant/index.pug --out ./src/static/elegant/tpl && echo module.exports = { renderResume: template }; >> ./src/static/elegant/tpl/index.js'
+                cmd: 'pug -c ./src/static/elegant/index.pug --out ./src/static/elegant/tpl'
             },
             run_server: {
                 cmd: "node ./build/web/server.mjs"
