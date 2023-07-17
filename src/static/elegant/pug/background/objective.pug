@@ -1,0 +1,10 @@
+unless _.isEmpty(resume.basics.objective)
+  .detail#objective
+    .icon
+      i.fs-lg.icon-bullseye
+      span.mobile-title Objective
+    .info
+      h4.title.text-uppercase Objective
+
+      .card.card-nested
+        .content.mop-wrapper(itemprop="description")!= resume.basics.objective

@@ -2,11 +2,11 @@
 
 @font-face {
   font-family: '@{icomoon-font-family}';
-  src:  url('@{font-path}/@{icomoon-font-family}.eot?6llb9d');
-  src:  url('@{font-path}/@{icomoon-font-family}.eot?6llb9d#iefix') format('embedded-opentype'),
-    url('@{font-path}/@{icomoon-font-family}.ttf?6llb9d') format('truetype'),
-    url('@{font-path}/@{icomoon-font-family}.woff?6llb9d') format('woff'),
-    url('@{font-path}/@{icomoon-font-family}.svg?6llb9d#@{icomoon-font-family}') format('svg');
+  src:  url('@{icomoon-font-path}/@{icomoon-font-family}.eot?4cqklt');
+  src:  url('@{icomoon-font-path}/@{icomoon-font-family}.eot?4cqklt#iefix') format('embedded-opentype'),
+    url('@{icomoon-font-path}/@{icomoon-font-family}.ttf?4cqklt') format('truetype'),
+    url('@{icomoon-font-path}/@{icomoon-font-family}.woff?4cqklt') format('woff'),
+    url('@{icomoon-font-path}/@{icomoon-font-family}.svg?4cqklt#@{icomoon-font-family}') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -15,6 +15,7 @@
 [class^="icon-"], [class*=" icon-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: '@{icomoon-font-family}' !important;
+  speak: never;
   font-style: normal;
   font-weight: normal;
   font-variant: normal;
@@ -26,119 +27,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-download {
+.icon-bullseye {
   &:before {
-    content: @icon-download; 
-  }
-}
-.icon-instagram {
-  &:before {
-    content: @icon-instagram; 
-  }
-}
-.icon-trophy {
-  &:before {
-    content: @icon-trophy; 
-  }
-}
-.icon-office {
-  &:before {
-    content: @icon-office; 
-  }
-}
-.icon-clock {
-  &:before {
-    content: @icon-clock; 
-  }
-}
-.icon-reddit {
-  &:before {
-    content: @icon-reddit; 
-  }
-}
-.icon-gitlab .path1 {
-  &:before {
-    content: @icon-gitlab-path1;  
-    color: rgb(252, 109, 38);
-  }
-}
-.icon-gitlab .path2 {
-  &:before {
-    content: @icon-gitlab-path2;  
-    margin-left: -1em;  
-    color: rgb(226, 67, 41);
-  }
-}
-.icon-gitlab .path3 {
-  &:before {
-    content: @icon-gitlab-path3;  
-    margin-left: -1em;  
-    color: rgb(252, 109, 38);
-  }
-}
-.icon-gitlab .path4 {
-  &:before {
-    content: @icon-gitlab-path4;  
-    margin-left: -1em;  
-    color: rgb(252, 163, 38);
-  }
-}
-.icon-gitlab .path5 {
-  &:before {
-    content: @icon-gitlab-path5;  
-    margin-left: -1em;  
-    color: rgb(226, 67, 41);
-  }
-}
-.icon-gitlab .path6 {
-  &:before {
-    content: @icon-gitlab-path6;  
-    margin-left: -1em;  
-    color: rgb(252, 109, 38);
-  }
-}
-.icon-gitlab .path7 {
-  &:before {
-    content: @icon-gitlab-path7;  
-    margin-left: -1em;  
-    color: rgb(252, 163, 38);
-  }
-}
-.icon-gitlab .path8 {
-  &:before {
-    content: @icon-gitlab-path8;  
-    margin-left: -1em;  
-    color: rgb(226, 67, 41);
-  }
-}
-.icon-meetup .path1 {
-  &:before {
-    content: @icon-meetup-path1;  
-    color: rgb(255, 255, 255);
-  }
-}
-.icon-meetup .path2 {
-  &:before {
-    content: @icon-meetup-path2;  
-    margin-left: -1.5em;  
-    color: rgb(240, 1, 1);
-  }
-}
-.icon-meetup .path3 {
-  &:before {
-    content: @icon-meetup-path3;  
-    margin-left: -1.5em;  
-    color: rgb(3, 3, 3);
-  }
-}
-.icon-blogger {
-  &:before {
-    content: @icon-blogger; 
-  }
-}
-.icon-exercism {
-  &:before {
-    content: @icon-exercism; 
+    content: @icon-bullseye; 
   }
 }
 .icon-telegram {
@@ -319,6 +210,121 @@
 .icon-facebook {
   &:before {
     content: @icon-facebook; 
+  }
+}
+.icon-download {
+  &:before {
+    content: @icon-download; 
+  }
+}
+.icon-instagram {
+  &:before {
+    content: @icon-instagram; 
+  }
+}
+.icon-trophy {
+  &:before {
+    content: @icon-trophy; 
+  }
+}
+.icon-office {
+  &:before {
+    content: @icon-office; 
+  }
+}
+.icon-clock {
+  &:before {
+    content: @icon-clock; 
+  }
+}
+.icon-reddit {
+  &:before {
+    content: @icon-reddit; 
+  }
+}
+.icon-gitlab .path1 {
+  &:before {
+    content: @icon-gitlab-path1;  
+    color: rgb(252, 109, 38);
+  }
+}
+.icon-gitlab .path2 {
+  &:before {
+    content: @icon-gitlab-path2;  
+    margin-left: -1em;  
+    color: rgb(226, 67, 41);
+  }
+}
+.icon-gitlab .path3 {
+  &:before {
+    content: @icon-gitlab-path3;  
+    margin-left: -1em;  
+    color: rgb(252, 109, 38);
+  }
+}
+.icon-gitlab .path4 {
+  &:before {
+    content: @icon-gitlab-path4;  
+    margin-left: -1em;  
+    color: rgb(252, 163, 38);
+  }
+}
+.icon-gitlab .path5 {
+  &:before {
+    content: @icon-gitlab-path5;  
+    margin-left: -1em;  
+    color: rgb(226, 67, 41);
+  }
+}
+.icon-gitlab .path6 {
+  &:before {
+    content: @icon-gitlab-path6;  
+    margin-left: -1em;  
+    color: rgb(252, 109, 38);
+  }
+}
+.icon-gitlab .path7 {
+  &:before {
+    content: @icon-gitlab-path7;  
+    margin-left: -1em;  
+    color: rgb(252, 163, 38);
+  }
+}
+.icon-gitlab .path8 {
+  &:before {
+    content: @icon-gitlab-path8;  
+    margin-left: -1em;  
+    color: rgb(226, 67, 41);
+  }
+}
+.icon-meetup .path1 {
+  &:before {
+    content: @icon-meetup-path1;  
+    color: rgb(255, 255, 255);
+  }
+}
+.icon-meetup .path2 {
+  &:before {
+    content: @icon-meetup-path2;  
+    margin-left: -1.5em;  
+    color: rgb(240, 1, 1);
+  }
+}
+.icon-meetup .path3 {
+  &:before {
+    content: @icon-meetup-path3;  
+    margin-left: -1.5em;  
+    color: rgb(3, 3, 3);
+  }
+}
+.icon-blogger {
+  &:before {
+    content: @icon-blogger; 
+  }
+}
+.icon-exercism {
+  &:before {
+    content: @icon-exercism; 
   }
 }
 .icon-profile {
