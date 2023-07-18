@@ -36,11 +36,38 @@ module.exports = function(grunt) {
         exec: {
             compile_pug: {
                 cmd: function() {
-                    const platform = process.platform;
-                    if (platform == 'win32')
-                        return 'pug -c ./src/static/elegant/index.pug --out ./src/static/elegant/tpl && echo module.exports = { renderResume: template }; >> ./src/static/elegant/tpl/index.js'
-                    else
-                        return 'pug -c ./src/static/elegant/index.pug --out ./src/static/elegant/tpl && echo "module.exports = { renderResume: template };" >> ./src/static/elegant/tpl/index.js'
+                    let exportsStr;
+                    //If the platform is specified, compile for the target platform
+                    if (grunt.option('platform')) {
+                        const platform = grunt.option('platform');
+
+                        if (platform != 'win32' || 
+                            platform != 'linux' ||
+                            platform != 'aix' ||
+                            platform != 'darwin' ||
+                            platform != 'freebsd' ||
+                            platform != 'sunos')
+                            {
+                                grunt.log.error("--platform option is invalid. Eligible values are listed here: https://nodejs.org/api/process.html#process_process_platform");
+                                return false;
+                            }
+                        else {
+                            if (platform == 'win32')
+                                exportsStr = ' && echo module.exports = { renderResume: template }; >> ./src/static/elegant/tpl/index.js'
+                            else 
+                                exportsStr = ' && echo "module.exports = { renderResume: template };" >> ./src/static/elegant/tpl/index.js'
+                        }
+                    }
+                    //Otherwise, compile for the current platform
+                    else {
+                        const platform = process.platform;
+                        if (platform == 'win32')
+                            exportsStr = ' && echo module.exports = { renderResume: template }; >> ./src/static/elegant/tpl/index.js'
+                        else
+                            exportsStr = ' && echo "module.exports = { renderResume: template };" >> ./src/static/elegant/tpl/index.js'
+                    }
+
+                    return 'pug -c ./src/static/elegant/index.pug --out ./src/static/elegant/tpl' + exportsStr
                 }
             },
             run_server: {

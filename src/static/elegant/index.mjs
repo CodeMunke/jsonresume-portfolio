@@ -221,6 +221,7 @@ function convertMarkdown(str) {
 
 function getFloatingNavItems(resume) {
     const floating_nav_items = [
+        {label: 'Objective', target: 'objective', icon: 'bullseye', requires: 'basics.objective'},
         {label: 'About', target: 'about', icon: 'board', requires: 'basics.summary'},
         {label: 'Work Experience', target: 'work-experience', icon: 'office', requires: 'work'},
         {label: 'Projects Experience', target: 'projects-experience', icon: 'code', requires: 'projects'},
