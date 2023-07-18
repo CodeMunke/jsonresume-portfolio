@@ -35,14 +35,20 @@ module.exports = function(grunt) {
         },
         exec: {
             compile_pug: {
-                cmd: 'pug -c ./src/static/elegant/index.pug --out ./src/static/elegant/tpl'
+                cmd: function() {
+                    const platform = process.platform;
+                    if (platform == 'win32')
+                        return 'pug -c ./src/static/elegant/index.pug --out ./src/static/elegant/tpl && echo module.exports = { renderResume: template }; >> ./src/static/elegant/tpl/index.js'
+                    else
+                        return 'pug -c ./src/static/elegant/index.pug --out ./src/static/elegant/tpl && echo "module.exports = { renderResume: template };" >> ./src/static/elegant/tpl/index.js'
+                }
             },
             run_server: {
                 cmd: "node ./build/web/server.mjs"
             },
             generate_ssh: {
                 cmd: function() {
-                    const sshPath = __dirname + "\\build\\ssh"
+                    const sshPath = __dirname + "/build/ssh"
                     //If the ssh folder doesn't exist, make one
                     if (!fs.existsSync(sshPath)){
                         fs.mkdirSync(sshPath, { recursive: true });
@@ -72,12 +78,12 @@ module.exports = function(grunt) {
                     process.env['SSH_ASKPASS'] = passphrase
                     process.env['DISPLAY'] = 1
 
-                    return `ssh-keygen -t rsa -b 4096 -f ${sshPath}\\id_rsa`
+                    return `ssh-keygen -t rsa -b 4096 -f ${sshPath}/id_rsa`
                 }
             },
             generate_dh: {
                 cmd: function() {
-                    const dhPath = __dirname + "\\build\\dhparam"
+                    const dhPath = __dirname + "/build/dhparam"
 
                     //If the dhparam folder doesn't exist, make one
                     if (!fs.existsSync(dhPath)){
@@ -99,7 +105,7 @@ module.exports = function(grunt) {
                     
                     grunt.log.writeln("Generating 4096-bit Diffie-Hellman key. Such a task is no joke and will take a long, LONG time. Please wait...")
                     var dh = dhparam(4096);
-                    fs.writeFileSync(dhPath + '\\dhparam-4096.pem', dh);
+                    fs.writeFileSync(dhPath + '/dhparam-4096.pem', dh);
 
                     return 'echo Complete!'
                 }
